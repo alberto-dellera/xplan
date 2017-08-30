@@ -29,13 +29,9 @@ You can find more details in the main script (xplan.sql) header, and a report ex
 
 A report example from Oracle 11g (from demo script xplan_showcase.sql) - comments in bold:  
 
-SQL> @xplan "%xplan_test_marker%" ""  
-
 ```
-<br/><br/>
 SQL> @xplan "%xplan_test_marker%" ""
-<br/><br/>
-<pre>
+
 <b>Misc database infos:</b>
 xplan version 2.5.3 23-Aug-2012 (C) Copyright 2008-2012 Alberto Dell'Era, www.adellera.it
 db_name=ora11gr2 instance_name=ora11gr2 version=11.2.0.3.0 (compatible = 11.2.0.0.0)

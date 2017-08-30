@@ -15,8 +15,9 @@ All these informations are automatically dumped by xplan, sparing us from a lot 
 
 You can identify the statement(s) you want in the report by matching a like-expression, or by sql_id, hash_value, module, action, instance_id, parsing user, or a combination of them. E.g.:  
 
-<pre>SQL>@xplan "select%my_table%" "module=MY_MODULE,parsed_by=WEB_USER"
-</pre>
+```
+SQL>@xplan "select%my_table%" "module=MY_MODULE,parsed_by=WEB_USER"
+```
 
 This dumps all select statements that reference my_table, issued by module MY_MODULE and parsed by WEB_USER.  
 
@@ -30,7 +31,8 @@ A report example from Oracle 11g (from demo script xplan_showcase.sql) - comment
 
 SQL> @xplan "%xplan_test_marker%" ""  
 
-<pre>**Misc database infos:**
+```
+**Misc database infos:**
 xplan version 2.5.3 23-Aug-2012 (C) Copyright 2008-2012 Alberto Dell'Era, www.adellera.it
 db_name=ora11gr2 instance_name=ora11gr2 version=11.2.0.3.0 (compatible = 11.2.0.0.0)
 
@@ -318,4 +320,4 @@ SQL_LIKE="%xplan_test_marker%"
 **Licence warning:**
 -- Warning: since ash_profile_mins > 0, you are using ASH/AWR; make sure you are licensed to use it.
 
-</pre>
+```

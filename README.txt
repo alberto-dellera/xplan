@@ -1,6 +1,6 @@
-xplan utility - copyright (C) 2008-2012 Alberto Dell'Era, www.adellera.it
+xplan utility - copyright (C) 2008-2017 Alberto Dell'Era, www.adellera.it
 
-Uncompress this .zip in a directory of your choice.
+Put all files in a directory of your choice.
 
 Change local directory to that directory (or add it to your SQLPATH environment variable).
 

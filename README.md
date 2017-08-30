@@ -29,14 +29,14 @@ You can find more details in the main script (xplan.sql) header, and a report ex
 
 A report example from Oracle 11g (from demo script xplan_showcase.sql) - comments in bold:  
 
-```
-SQL> @xplan "%xplan_test_marker%" ""
+SQL> @xplan "%xplan_test_marker%" ""  
 
-<b>Misc database infos:</b>
+```
+**Misc database infos:**
 xplan version 2.5.3 23-Aug-2012 (C) Copyright 2008-2012 Alberto Dell'Era, www.adellera.it
 db_name=ora11gr2 instance_name=ora11gr2 version=11.2.0.3.0 (compatible = 11.2.0.0.0)
 
-<b>Instance CBO-related parameters:</b>
+**Instance CBO-related parameters:**
 optimizer parameters instance(sys) settings:
 ------------------------------------------------- --------------------------------------------- ---------------------------------------------
 |optimizer param name                 |value    | |optimizer param name             |value    | |optimizer param name        |value         |
@@ -60,7 +60,7 @@ optimizer parameters instance(sys) settings:
 |optimizer_index_cost_adj             |     100 | |parallel_query_default_dop       |       0 |
 ------------------------------------------------- ---------------------------------------------
 
-<b>CBO system statistics:</b>
+**CBO system statistics:**
 optimizer system statistics:
 ---------------------------------------- -------------------------- --------------------------
 |system statistic |value               | |system statistic |value | |system statistic |value |
@@ -71,12 +71,12 @@ optimizer system statistics:
 |cpuspeed         |               null | |mbrc             | null | |slavethr         | null |
 ---------------------------------------- -------------------------- --------------------------
 
-<b>Sstatement identity, and miscellaneous infos:</b>
+**Sstatement identity, and miscellaneous infos:**
 sql_id=cdcyga72r9f01 hash=3312760833 child_number=0 plan_hash=4202265887 module=SQL*Plus
 first_load: 2012/08/25 11:38:28 last_load: 2012/08/25 11:38:28 last_active: 2012/08/25 11:38:42
 parsed_by=DELLERA inst_id=1
 
-<b>Statistics from v$sql ( /exec is the stat value divided by v$sql.executions):</b>
+**Statistics from v$sql ( /exec is the stat value divided by v$sql.executions):**
 -------------------------------------------- --------------------------------- --------------------------------------------------
 |gv$sql statname |total      |/exec        | |gv$sql statname |total  |/exec | |gv$sql statname         |total     |/exec       |
 -------------------------------------------- --------------------------------- --------------------------------------------------
@@ -89,20 +89,20 @@ parsed_by=DELLERA inst_id=1
 |cpu_time (usec) |12,562,500 |12,562,500.0 | |runtime_mem     |28,700 |      | |java  exec  wait (usec) |        0 |         .0 |
 -------------------------------------------- --------------------------------- --------------------------------------------------
 
-<b>Statement text:</b>
+**Statement text:**
 SELECT /*+ index(t,t_fbi) ordered use_nl(v) xplan_test_marker */ T.RR, PLSQL_FUNC(MAX(T.X)) FROM T, V WHERE UPPER(T.X) >= '0' AND T.X > :B1 AND V.RR
 ='x' GROUP BY T.RR ORDER BY T.RR
 
-<b>Names of non-table objects depended on (from v$object_dependency) - full definition at the bottom of the report:</b>
+**Names of non-table objects depended on (from v$object_dependency) - full definition at the bottom of the report:**
 - depends on view DELLERA.V
 - depends on function DELLERA.PLSQL_FUNC
 
-<b>Peeked binds values, and bind infos: </b>
+**Peeked binds values, and bind infos:** 
 bind_sensitive
 peeked binds values: :B1 = 0
 peeked binds types : :B1 = number(22)
 
-<b>Plan (format similar to dbms_xplan one) and most important infos (columns ending with "+" are self statistics):</b>
+**Plan (format similar to dbms_xplan one) and most important infos (columns ending with "+" are self statistics):**
 ------------------------------------------------------------------------------------------------------------------------------
 |CR+CU |CR+CU+|Ela       |Ela+      |Id|Operation                  |Name |Table|Erows  |Arows    |Cost  |IoCost|Psta|Psto|IdP|
 -last---last---last-------last----------------------------------------------------------last----------------------------------
@@ -120,7 +120,7 @@ peeked binds types : :B1 = number(22)
 .     - filter[ T.SYS_NC00004$>='0' ]
 .   7 - filter[ (RR='x' AND X>0) ]
 
-<b>Wait event profile (from ASH):</b>
+**Wait event profile (from ASH):**
 ----------------------------------
 |ash event              |cnt|%   |
 ----------------------------------
@@ -128,8 +128,8 @@ peeked binds types : :B1 = number(22)
 |db file sequential read|  3|23.1|
 ----------------------------------
 
-<b>Main plan statistics:</b>
-<b> CR=Consistent Reads, CU=CUrrent reads, diskR=Disk Reads, diskW=Disk Writes, etc. </b>
+**Main plan statistics:**
+ **CR=Consistent Reads, CU=CUrrent reads, diskR=Disk Reads, diskW=Disk Writes, etc.** 
 ----------------------------------------------------------------------------------------------------
 |Id|Starts|CR    |CR+   |CU  |diskR|diskR+|diskW|E0ram|E1ram|Aram |Policy|A01M   |0/1/M|ActTim     |
 ----last---last---last---last-last--last---last--------------last---------last----------avg---------
@@ -144,7 +144,7 @@ peeked binds types : :B1 = number(22)
 -------------------------------------------------KB----KB----KB-------------------#-----msec--------
 note: stats Aram, A01M, 0/1/M, ActTim do not seem to be always accurate.
 
-<b>Additional plan details (qb_name, alias, column projection information):</b>
+**Additional plan details (qb_name, alias, column projection information):**
 -----------------------------------------------------------------------------------------------
 |Id|Qb_name     |ObjAlias|ObjType       |Obj  |BaseObj|Projection                             |
 -----------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ note: stats Aram, A01M, 0/1/M, ActTim do not seem to be always accurate.
 | 7|SEL$F5BB74E1|T@SEL$2 |INDEX (UNIQUE)|T_PK |T      |                                       |
 -----------------------------------------------------------------------------------------------
 
-<b>CBO-related parameters different from instance ones:</b>
+**CBO-related parameters different from instance ones:**
 WARNING: 6 params in gv$sql_optimizer_env are not the same as instance ones:
 ---------------------------------- -------------------------------- -------------------------------
 |optimizer param name   |value   | |optimizer param name |value   | |optimizer param name |value  |
@@ -167,20 +167,20 @@ WARNING: 6 params in gv$sql_optimizer_env are not the same as instance ones:
 |hash_area_size         |2000000 | |sqlstat_enabled      |   true | |workarea_size_policy |manual |
 ---------------------------------- -------------------------------- -------------------------------
 
-<b>Accessed table(s) informations:</b>
+**Accessed table(s) informations:**
 ############################################# table DELLERA.T ###
 PARTITIONED BY RANGE ( X, PADDING )
 IOT
 
-<b>Accessed table columns definitions and constraints :</b>
-<b> Note that the FBI expression for hidden columns is provided</b>
-<b> Note the concise index/constraint report on the right</b>
-<b>  E.g. Index #4 is a Unique index on (X,PADDING)</b>
-<b>       Index #1 is a non-unique index on (X, UPPER(TO_CHAR("X")), PADDING )</b>
-<b>       Primary Key is on (X,PADDING)</b>
-<b>       Unique Constraint U2 is on (PADDING,X)</b>
-<b>       Unique Constraint U1 is referenced (R) by some FK from another table</b>
-<b>       Foreign Key R1 is from column RR</b>
+**Accessed table columns definitions and constraints :**
+ **Note that the FBI expression for hidden columns is provided**
+ **Note the concise index/constraint report on the right**
+ **E.g. Index #4 is a Unique index on (X,PADDING)**
+ **Index #1 is a non-unique index on (X, UPPER(TO_CHAR("X")), PADDING )**
+ **Primary Key is on (X,PADDING)**
+ **Unique Constraint U2 is on (PADDING,X)**
+ **Unique Constraint U1 is referenced (R) by some FK from another table**
+ **Foreign Key R1 is from column RR**
 ----------------------------------------------------------------------
 |Id|IId|V|ColName     |Type                |Null|Expression|1|2|3|4|5|
 -------------------------------------------------trunc------------U-U-
@@ -206,7 +206,7 @@ IOT
 |SYS_NC00005$|I:CASE "X" WHEN 0 THEN 'pippo' WHEN 1 THEN 'uuiio' WHEN 3 THEN 'uuciio' WHEN 4 THEN 'uuieio' ELSE 'pppppp' END|
 -----------------------------------------------------------------------------------------------------------------------------
 
-<b>Accessed table CBO statistics (for partitions too):</b>
+**Accessed table CBO statistics (for partitions too):**
 -------------------------------------------------------------------------------
 |Pid|Partition|num_rows|avg_row_len|sample_size|last_analyzed      |parallel  |
 -------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ IOT
 |  3|POTHER   |     800|        318|        800|2012/08/22 16:18:38|          |
 -------------------------------------------------------------------------------
 
-<b>Accessed table columns CBO statistics (for partitions too):</b>
+**Accessed table columns CBO statistics (for partitions too):**
 ----------------------------------------------------------------------------------------------------------
 |ColName     |Partition|ndv  |dens*#rows|num_nulls|#bkts|hist|avg_col_len|sample_size|last_analyzed      |
 ----------------------------------------------------------------------------------------------------------
@@ -242,7 +242,7 @@ IOT
 |SYS_NC00005$|POTHER   |    1|       0.6|        0|    1|FREQ|          7|        800|2012/08/25 11:38:24|
 ----------------------------------------------------------------------------------------------------------
 
-<b>Accessed table index(es) definitions and CBO statistics (for partitions too):</b>
+**Accessed table index(es) definitions and CBO statistics (for partitions too):**
 ### index #1: DELLERA.T_FBI
 on DELLERA.T ( X, SYS_NC00004$, PADDING )
 NONUNIQUE FUNCTION-BASED B+TREE
@@ -296,7 +296,7 @@ UNIQUE B+TREE
 |        1,000|   1,000|     1|         46| 231|      1,000|2012/08/25 11:38:25|1       |
 -----------------------------------------------------------------------------------------
 
-<b>Definition of dependent objects (e.g. accessed views, packages, functions):</b>
+**Definition of dependent objects (e.g. accessed views, packages, functions):**
 ############################################# function DELLERA.PLSQL_FUNC ###
 ASSOCIATED STATISTICS:  default selectivity (.001) default cost (cpu=100 io=10 net=1)
 function plsql_func (p varchar2)
@@ -310,14 +310,14 @@ view columns: #1 X(NUMBER),#2 PADDING(VARCHAR2),#3 RR(VARCHAR2)
 select x, padding, rr
   from t
  where x > 0
- 
-<b>Options and Statement text filter SQL-like expression summary:</b>
+
+**Options and Statement text filter SQL-like expression summary:**
 OPTIONS: inst_id=1 plan_stats=last access_predicates=Y lines=150 ash_profile_mins=15 module= action= hash= sql_id= parsed_by= child_number=
 dbms_xplan=N dbms_metadata=N plan_details=Y plan_env=Y tabinfos=Y objinfos=Y partinfos=Y self=Y order_by= numbers_with_comma=Y
 spool_name=xplan_i1.lst spool_files=single
 SQL_LIKE="%xplan_test_marker%"
 
-<b>Licence warning:</b>
+**Licence warning:**
 -- Warning: since ash_profile_mins > 0, you are using ASH/AWR; make sure you are licensed to use it.
 
 ```

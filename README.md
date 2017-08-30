@@ -1,6 +1,6 @@
 ### What it is
 
-My sqlplus script [xplan](xplan.zip) has been designed to dump, in a **concise and complete** text report, all the informations that are needed to tune a SGA-resident SQL statement.  
+My sqlplus script has been designed to dump, in a **concise and complete** text report, all the informations that are needed to tune a SGA-resident SQL statement.  
 
 When tuning (or simply studying) a statement, one typically needs or eagerly wants:
 
@@ -27,7 +27,7 @@ You can find more details in the main script (xplan.sql) header, and a report ex
 
 ### Report example
 
-A report example from Oracle 11g (from demo script xplan_showcase.sql) - comments in bold:  
+A report example from Oracle 11g (from demo script xplan_showcase.sql) - comments surrounded by "**":  
 
 SQL> @xplan "%xplan_test_marker%" ""  
 

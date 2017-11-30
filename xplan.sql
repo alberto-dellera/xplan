@@ -97,7 +97,7 @@
 -- Copyright:   (c) 2008-2016 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.8.7 13-July-2017"
+define XPLAN_VERSION="2.8.8 30-November-2017"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2017 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -184,7 +184,7 @@ declare /* xplan_exec_marker */ &ERROR_BEFORE_MAIN_BLOCK. -- main block
   type referenced_sql_hashid_t is table of varchar2(1) index by varchar2(13);
   m_referenced_sql_hashids referenced_sql_hashid_t;
 
-  &COMM_IF_LT_12C. type adaptive_inactive_t is table of varchar2(1) index by binary_integer;
+  type adaptive_inactive_t is table of varchar2(1) index by binary_integer;
   
 @@xplan_utilities_body.sql
 @@xplan_mcf_body.sql
@@ -424,7 +424,7 @@ begin
                   p_last_load_time  => to_date (stmt.last_load_time, 'yyyy-mm-dd/hh24:mi:ss')
                   &COMM_IF_LT_10GR2., p_last_active_time             => stmt.last_active_time
                   &COMM_IF_LT_11G.  , p_sql_plan_baseline            => stmt.sql_plan_baseline
-                  &COMM_IF_LT_10GR2., p_is_is_resolved_adaptive_plan => stmt.is_resolved_adaptive_plan
+                  &COMM_IF_LT_12C.  , p_is_is_resolved_adaptive_plan => stmt.is_resolved_adaptive_plan
                  );
     else -- if :OPT_SPOOL_FILES = ... ("by_hash" and "by_sql_id" branches)
       &COMM_IF_LT_10G. if :OPT_SPOOL_FILES = 'by_hash' then

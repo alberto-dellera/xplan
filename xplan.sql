@@ -94,11 +94,11 @@
 --                       If not specified, it defaults to "by_sql_id" if sql_id is set, to "by_hash" if hash is set,
 --                       otherwise to "single".
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2016 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2020 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.8.8 30-November-2017"
-define XPLAN_COPYRIGHT="(C) Copyright 2008-2017 Alberto Dell''Era, www.adellera.it"
+define XPLAN_VERSION="2.8.9 30-November-2020"
+define XPLAN_COPYRIGHT="(C) Copyright 2008-2020 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
 set echo off verify off feedback off termout off timing off
@@ -313,6 +313,7 @@ begin
       &COMM_IF_LT_10G. mcf_add_line ('java  exec  wait (usec)', stmt.java_exec_time       );
 
       &COMM_IF_LT_11GR2. mcf_add_line ('io_cell_offload_eligible_bytes',  stmt.io_cell_offload_eligible_bytes);
+      &COMM_IF_LT_11GR2. mcf_add_line ('io_interconnect_bytes'         , stmt.io_interconnect_bytes);
       &COMM_IF_LT_11GR2. mcf_add_line ('io_cell_uncompressed_bytes'    , stmt.io_cell_uncompressed_bytes); 
       &COMM_IF_LT_11GR2. mcf_add_line ('io_cell_offload_returned_bytes', stmt.io_cell_offload_returned_bytes);
 

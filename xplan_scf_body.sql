@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2015 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 procedure scf_init_state_for (

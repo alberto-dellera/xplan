@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008, 2009, 2010, 2012, 2013, 2017 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 procedure extract_tag_value( p_xml clob, p_tag_name varchar2, p_tag_text out varchar2) 

@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008, 2009 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 function calc_obj_info_seq (p_owner varchar2, p_seq_name varchar2)

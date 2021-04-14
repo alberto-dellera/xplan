@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008, 2009, 2013 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 /*

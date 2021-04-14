@@ -98,7 +98,7 @@
 --------------------------------------------------------------------------------
 
 define XPLAN_VERSION="2.8.9 30-November-2020"
-define XPLAN_COPYRIGHT="(C) Copyright 2008-2020 Alberto Dell''Era, www.adellera.it"
+define XPLAN_COPYRIGHT="(C) Copyright 2008-2021 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
 set echo off verify off feedback off termout off timing off

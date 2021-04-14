@@ -4,7 +4,7 @@
 --             and that are still present in gv$sql.
 --             See xplan.sql header for required privileges.
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008, 2009 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 set null "" trimspool on define on escape off lines 250 pages 50000 tab off arraysize 100 

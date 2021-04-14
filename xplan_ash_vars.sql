@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era                                                                    
--- Copyright:   (c) 2013 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2013-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
                                                                                                    
 -- sqlid+child_number whose counts are over threshold (m_ash_thr)                                  

@@ -419,7 +419,8 @@ begin
      
       -- statement plan
       print_plan (p_inst_id         => :OPT_INST_ID, 
-                  p_address         => stmt.address     , p_hash_value => stmt.hash_value, 
+                  p_address         => stmt.address, p_child_address => stmt.child_address,
+                  p_hash_value      => stmt.hash_value, 
                   p_child_number    => stmt.child_number, p_executions => stmt.executions,
                   p_first_load_time => to_date (stmt.first_load_time, 'yyyy-mm-dd/hh24:mi:ss'),
                   p_last_load_time  => to_date (stmt.last_load_time, 'yyyy-mm-dd/hh24:mi:ss')

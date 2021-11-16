@@ -364,6 +364,7 @@ end extract_adaptive_inactive;
 procedure print_plan (
   p_inst_id           sys.gv_$sql.inst_id%type,
   p_address           sys.gv_$sql.address%type, 
+  p_child_address     sys.gv_$sql.child_address%type,
   p_hash_value        sys.gv_$sql.hash_value%type, 
   p_child_number      sys.gv_$sql.child_number%type,
   p_executions        int,
@@ -616,16 +617,19 @@ begin
   end loop;
   
   -- VPD policies
-  for po in ( select object_owner, object_name, predicate, policy_function_owner, policy
-                from sys.gv_$vpd_policy 
-               where inst_id   = p_inst_id 
-                 and sql_hash  = p_hash_value
-&COMM_IF_LT_10G. and sql_id = l_sql_id
-                 and child_number = p_child_number
-               order by object_owner, object_name)
-  loop
-    print('. --- - VPD POLICY on '||po.object_owner||'.'||po.object_name||' : ['||po.predicate||']   applied by function '||po.policy_function_owner||'.'||po.policy);
-  end loop;
+  -- 20211116: too heavy in 12.2 and relatively useless   for po in ( select /*+ rule */ -- 20211116
+  -- 20211116: too heavy in 12.2 and relatively useless                      object_owner, object_name, predicate, policy_function_owner, policy
+  -- 20211116: too heavy in 12.2 and relatively useless                 from sys.gv_$vpd_policy 
+  -- 20211116: too heavy in 12.2 and relatively useless                where inst_id   = p_inst_id 
+  -- 20211116: too heavy in 12.2 and relatively useless                  and paraddr   = p_address -- 20211116
+  -- 20211116: too heavy in 12.2 and relatively useless                  and address   = p_child_address -- 20211116
+  -- 20211116: too heavy in 12.2 and relatively useless                  and sql_hash  = p_hash_value
+  -- 20211116: too heavy in 12.2 and relatively useless &COMM_IF_LT_10G. and sql_id = l_sql_id
+  -- 20211116: too heavy in 12.2 and relatively useless                  and child_number = p_child_number
+  -- 20211116: too heavy in 12.2 and relatively useless                order by object_owner, object_name)
+  -- 20211116: too heavy in 12.2 and relatively useless   loop
+  -- 20211116: too heavy in 12.2 and relatively useless     print('. --- - VPD POLICY on '||po.object_owner||'.'||po.object_name||' : ['||po.predicate||']   applied by function '||po.policy_function_owner||'.'||po.policy);
+  -- 20211116: too heavy in 12.2 and relatively useless   end loop;
   
   -- PX Slave SQL
   if l_others.count > 0 then

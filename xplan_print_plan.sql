@@ -660,14 +660,14 @@ begin
   &COMM_IF_NO_DBMS_XPLAN.   open l_cursor for 
   &COMM_IF_NO_DBMS_XPLAN.   with bas as (
   &COMM_IF_NO_DBMS_XPLAN.     select /*+ xplan_exec_marker */ plan_table_output,
-  &COMM_IF_NO_DBMS_XPLAN.     to_number( regexp_substr(plan_table_output, '\| +Q[0-9]*?,([0-9]*?) +\|', 1, 1, 'c', 1 ) ) as tq_second,
+  &COMM_IF_NO_DBMS_XPLAN.     to_number( regexp_substr(plan_table_output, '\| +Q?[0-9]*?,([0-9]*?) +\|', 1, 1, 'c', 1 ) ) as tq_second, -- keep aligned with xpm
   &COMM_IF_NO_DBMS_XPLAN.     rownum as line_num
   --&COMM_IF_NO_DBMS_XPLAN.   from table (sys.dbms_xplan.display_cursor (l_sql_id, p_child_number, l_dbms_xplan_format)); -- no inst_id parameter!
   -- adapted from http://carlos-sierra.net/2013/06/17/using-dbms_xplan-to-display-cursor-plans-for-a-sql-in-all-rac-nodes/:
   &COMM_IF_NO_DBMS_XPLAN.       from table( sys.dbms_xplan.display('sys.gv_$sql_plan_statistics_all', null, l_dbms_xplan_format, 'inst_id = '||p_inst_id||' and sql_id = '''||l_sql_id||''' and child_number = '||p_child_number ) )
   &COMM_IF_NO_DBMS_XPLAN.   )
   &COMM_IF_NO_DBMS_XPLAN.   select decode(:OPT_COLORS,'Y',chr(27)||'[38;5;'||to_char( nvl( 1 + mod(tq_second,14), 15 ), 'fm00') ||'m') || -- keep aligned with rows labeled as "plan_color" and ash_sqlid_drill.sql
-  &COMM_IF_NO_DBMS_XPLAN.          plan_table_output || 
+  &COMM_IF_NO_DBMS_XPLAN.          plan_table_output
   &COMM_IF_NO_DBMS_XPLAN.          decode(:OPT_COLORS,'Y',chr(27)||'[0m') as plan_table_output
   &COMM_IF_NO_DBMS_XPLAN.     from bas
   &COMM_IF_NO_DBMS_XPLAN.    order by line_num;

@@ -94,10 +94,10 @@
 --                       If not specified, it defaults to "by_sql_id" if sql_id is set, to "by_hash" if hash is set,
 --                       otherwise to "single".
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2020 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.8.9 30-November-2020"
+define XPLAN_VERSION="2.8.10 16-November-2021"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2021 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 

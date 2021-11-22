@@ -657,6 +657,47 @@ begin
   return m_cache_program_info(p_program_id);
 end get_cache_program_info;
 
+-- following procedures are to retrieve object_id for gv$sql.program_id
+procedure cache_program_id (p_program varchar2)
+is
+  l_owner varchar2(128);
+  l_name  varchar2(128);
+  l_dot integer;
+begin
+  if m_cache_program_id.exists (p_program) then
+    return;
+  end if;
+
+  l_dot   := instr(p_program, '.');
+  l_owner := substr(p_program, 1, l_dot-1);
+  l_name  := substr(p_program, l_dot+1);
+  
+  begin 
+    select /*+ rule xplan_exec_marker */ object_id
+      into m_cache_program_id(p_program)
+      from sys.all_objects
+     where owner = l_owner
+       and object_name = l_name
+       and object_type in ('PROCEDURE', 'FUNCTION', 'PACKAGE BODY', 'TYPE BODY', 'TRIGGER');
+  exception 
+    when no_data_found then 
+      raise_application_error(-20200, 'program not found: "'||l_owner||'.'||l_name||'"');
+    when too_many_rows then 
+      raise_application_error(-20201, 'too many programs for "'||l_owner||'.'||l_name||'"');
+  end;
+end cache_program_id;
+
+function get_cache_program_id (p_program varchar2)
+return number
+is
+begin
+  if p_program is null then
+    return null;
+  end if;
+  cache_program_id (p_program);
+  return m_cache_program_id(p_program);
+end get_cache_program_id;
+
 -- following procedures are for main xplan
 procedure cache_username (p_user_id int)
 is

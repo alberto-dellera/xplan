@@ -24,6 +24,10 @@ m_cache_table_printed_infos cache_table_printed_infos_t;
 type cache_program_info_t is table of varchar2(100) index by binary_integer;
 m_cache_program_info cache_program_info_t;
 
+-- map from owner/objectname gv$sql.program_id 
+type cache_program_id_t is table of number index by varchar2(257);
+m_cache_program_id cache_program_id_t;
+
 -- map from user_id to username
 type cache_username_t is table of varchar2(30) index by binary_integer;
 m_cache_username cache_username_t;

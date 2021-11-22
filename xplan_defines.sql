@@ -89,7 +89,8 @@ variable OPT_ACTION            varchar2(100 char)
 variable OPT_HASH_VALUE        varchar2(30  char)
 variable OPT_PLAN_HASH_VALUE   varchar2(30  char)
 variable OPT_SQL_ID            varchar2(30  char)
-variable OPT_PARSED_BY         varchar2(30  char)
+variable OPT_PARSED_BY         varchar2(128 char)
+variable OPT_CALLED_BY         varchar2(257 char)
 variable OPT_CHILD_NUMBER      number
 variable OPT_DBMS_XPLAN        varchar2(1)
 variable OPT_DBMS_METADATA     varchar2(3)
@@ -130,6 +131,7 @@ begin
   :OPT_PLAN_HASH_VALUE     := null;
   :OPT_SQL_ID              := null;
   :OPT_PARSED_BY           := null;
+  :OPT_CALLED_BY           := null;
   :OPT_CHILD_NUMBER        := null;
   :OPT_DBMS_XPLAN          := 'N';
   :OPT_DBMS_METADATA       := 'N';
@@ -190,65 +192,68 @@ begin
         &COMM_IF_GT_9I. if :OPT_SQL_ID is not null then raise_application_error (-20005, 'cannot use sql_id before 10g'); end if;
       elsif l_name = 'parsed_by' then  
         :OPT_PARSED_BY := upper(l_value);
+      elsif l_name = 'called_by' then  
+        :OPT_CALLED_BY := upper(trim(l_value));
+         if :OPT_CALLED_BY is null or instr(:OPT_CALLED_BY, '.') <= 1 then raise_application_error(-20006, 'invalid value "'||l_value||'" for option '||l_name||'.'); end if;
       elsif l_name in ('child_number','cn') then
         :OPT_CHILD_NUMBER := to_number (l_value);
       elsif l_name = 'dbms_xplan' then
         if l_value in ('y','n') then
           :OPT_DBMS_XPLAN := upper (l_value);
-          &COMM_IF_GT_9I. if :OPT_DBMS_XPLAN = 'Y' then raise_application_error (-20006, 'cannot use dbms_xplan before 10g'); end if;
+          &COMM_IF_GT_9I. if :OPT_DBMS_XPLAN = 'Y' then raise_application_error (-20007, 'cannot use dbms_xplan before 10g'); end if;
         else
-          raise_application_error (-20007, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20008, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;
       elsif l_name = 'dbms_metadata' then
         if l_value in ('y','n','all') then
           :OPT_DBMS_METADATA := upper (l_value);
         else
-          raise_application_error (-20008, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20009, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;
       elsif l_name in ('plan_details', 'pd') then
         if l_value in ('y','n') then
           :OPT_PLAN_DETAILS := upper (l_value);
           &COMM_IF_GT_9I. if :OPT_PLAN_DETAILS = 'Y' then raise_application_error (-20008, 'cannot display plan_details before 10g'); end if;
         else
-          raise_application_error (-20009, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20010, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;  
       elsif l_name = 'plan_env' then
         if l_value in ('y','n') then
           :OPT_PLAN_ENV := upper (l_value);
         else
-          raise_application_error (-20010, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20011, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;  
       elsif l_name in ('ash_profile_mins','ash_profile_min') then
         :OPT_ASH_PROFILE_MINS := to_number (l_value);
         if :OPT_ASH_PROFILE_MINS >= 0 and :OPT_ASH_PROFILE_MINS = trunc (:OPT_ASH_PROFILE_MINS) then 
           null;
         else
-          raise_application_error (-20011, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20012, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;
-        &COMM_IF_GT_9I. if :OPT_ASH_PROFILE_MINS != 0 then raise_application_error (-20012, 'cannot use ASH before 10g'); end if;
+        &COMM_IF_GT_9I. if :OPT_ASH_PROFILE_MINS != 0 then raise_application_error (-20013, 'cannot use ASH before 10g'); end if;
       elsif l_name in ('tabinfos', 'ti') then
         if l_value in ('y','n','bottom') then
           :OPT_TABINFOS := upper (l_value);
         else
-          raise_application_error (-20013, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20014, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;   
       elsif l_name in ('objinfos', 'oi') then
         if l_value in ('y','n') then
           :OPT_OBJINFOS := upper (l_value);
         else
-          raise_application_error (-20014, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20015, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if; 
       elsif l_name in ('partinfos', 'pi') then
         if l_value in ('y','n') then
           :OPT_PARTINFOS := upper (l_value);
         else
-          raise_application_error (-20015, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20016, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;
       elsif l_name = 'self' then
         if l_value in ('y','n') then
           :OPT_SELF := upper (l_value);
         else
-          raise_application_error (-20016, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20017, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;  
       elsif l_name = 'order_by' then
         :OPT_ORDER_BY := replace (trim(l_value), ';', ',') || ',';  
@@ -256,13 +261,13 @@ begin
         if l_value in ('y','n') then
           :OPT_NUMBER_COMMAS := upper (l_value);
         else
-          raise_application_error (-20017, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20018, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;  
       elsif l_name in ('colors') then
         if l_value in ('y','n') then
           :OPT_COLORS := upper (l_value);
         else
-          raise_application_error (-20018, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20019, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if; 
       elsif l_name = 'spool_name' then
          :OPT_SPOOL_NAME := l_value;
@@ -273,7 +278,7 @@ begin
         if l_value in ('single', 'by_hash', 'by_sql_id') then
           :OPT_SPOOL_FILES := l_value;
         else
-          raise_application_error (-20019, 'invalid value "'||l_value||'" for option '||l_name||'.');
+          raise_application_error (-20020, 'invalid value "'||l_value||'" for option '||l_name||'.');
         end if;
         &COMM_IF_GT_9I. if :OPT_SPOOL_FILES = 'by_sql_id' then raise_application_error (-20017, 'cannot name files using sql_id before 10g'); end if;
       else 
@@ -326,6 +331,7 @@ select /*+ xplan_exec_marker */
     || ' plan_hash='||:OPT_PLAN_HASH_VALUE
     || ' sql_id='||:OPT_SQL_ID
     || ' parsed_by='||:OPT_PARSED_BY
+    || ' called_by='||:OPT_CALLED_BY
     || ' child_number='||:OPT_CHILD_NUMBER
     || ' dbms_xplan='||:OPT_DBMS_XPLAN
     || ' dbms_metadata='||:OPT_DBMS_METADATA

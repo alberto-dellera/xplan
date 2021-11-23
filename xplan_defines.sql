@@ -91,6 +91,7 @@ variable OPT_PLAN_HASH_VALUE   varchar2(30  char)
 variable OPT_SQL_ID            varchar2(30  char)
 variable OPT_PARSED_BY         varchar2(128 char)
 variable OPT_CALLED_BY         varchar2(257 char)
+variable OPT_LAST_ACTIVE       varchar2(60  char)
 variable OPT_CHILD_NUMBER      number
 variable OPT_DBMS_XPLAN        varchar2(1)
 variable OPT_DBMS_METADATA     varchar2(3)
@@ -132,6 +133,7 @@ begin
   :OPT_SQL_ID              := null;
   :OPT_PARSED_BY           := null;
   :OPT_CALLED_BY           := null;
+  :OPT_LAST_ACTIVE         := null;
   :OPT_CHILD_NUMBER        := null;
   :OPT_DBMS_XPLAN          := 'N';
   :OPT_DBMS_METADATA       := 'N';
@@ -195,6 +197,8 @@ begin
       elsif l_name = 'called_by' then  
         :OPT_CALLED_BY := upper(trim(l_value));
          if :OPT_CALLED_BY is null or instr(:OPT_CALLED_BY, '.') <= 1 then raise_application_error(-20006, 'invalid value "'||l_value||'" for option '||l_name||'.'); end if;
+      elsif l_name = 'last_active' then  
+        :OPT_LAST_ACTIVE := upper(trim(l_value));
       elsif l_name in ('child_number','cn') then
         :OPT_CHILD_NUMBER := to_number (l_value);
       elsif l_name = 'dbms_xplan' then
@@ -332,6 +336,7 @@ select /*+ xplan_exec_marker */
     || ' sql_id='||:OPT_SQL_ID
     || ' parsed_by='||:OPT_PARSED_BY
     || ' called_by='||:OPT_CALLED_BY
+    || ' last_active='||:OPT_LAST_ACTIVE
     || ' child_number='||:OPT_CHILD_NUMBER
     || ' dbms_xplan='||:OPT_DBMS_XPLAN
     || ' dbms_metadata='||:OPT_DBMS_METADATA

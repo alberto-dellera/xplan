@@ -44,12 +44,14 @@
 --          inst_id: <integer> (default : instance which the sqlplus session is connected to) [alias i]
 --                  Select only statements from the instance whose id matches the provided integer (RAC only; 
 --                  the default is ok for non-RAC systems)
---          parsed_by: <integer> | <string>
+--          parsed_by: <integer> | <string> (default null)
 --                     Select only statements whose gv$sql.parsing_user_id is equal to either <integer> or
 --                     the user_id associated with the user whose username is <string>
 --          called_by: <integer> | <string> (default null)
 --                     Select only statements whose gv$sql.program_id is equal to either <integer> or
 --                     the object_id associated with the procedure/package body/type body/trigger  whose owner.name is <string>
+--          last_active: <string> (default null)
+--                       Select only statements whose gv$sql.last_active_time is >= then this date (dd/mm/yyyy hh24:mi:ss)
 --          child_number: <integer> (default null) [alias cn]
 --                        Select only statements whose gv$sql.child_number matches the provided integer
 --          plan_hash: <integer> (default null) [alias ph,plan_hash_value]
@@ -100,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.9.0 22-November-2021"
+define XPLAN_VERSION="2.9.1 23-November-2021"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2021 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -173,6 +175,7 @@ declare /* xplan_exec_marker */ &ERROR_BEFORE_MAIN_BLOCK. -- main block
   m_sql_id            varchar2(30 char)  := :OPT_SQL_ID;  
   m_parsing_user_id   number             := null;
   m_program_id        number             := null;
+  m_last_active       date               := null;
   m_child_number      number             := :OPT_CHILD_NUMBER;  
   
   m_stmt long;
@@ -230,6 +233,14 @@ begin
       m_program_id := get_cache_program_id (:OPT_CALLED_BY);
     end if;
   end if;
+
+  -- convert <last_active> into m_last_active
+  begin 
+    m_last_active := to_date(:OPT_LAST_ACTIVE, 'dd/mm/yyyy hh24:mi:ss');
+  exception 
+    when others then 
+      raise_application_error(-20091, 'invalid value "'||:OPT_LAST_ACTIVE||'" for option last_active');
+  end;
   
   if :OPT_SPOOL_FILES = 'single' then 
     -- print optimizer env sys-level parameters (10g+: gv$sys_optimizer_env; 9i:gv$parameter)
@@ -258,10 +269,11 @@ begin
 -- following commenting-out is to optimize access by hash value (if specified => fixed index is used)
 &COMM_IF_NO_HASH. and hash_value = m_hash_value
 &COMM_IF_NO_PLAN_HASH. and plan_hash_value = m_plan_hash_value
-&COMM_IF_LT_10G.  and (m_sql_id          is null or sql_id          = m_sql_id)
-                  and (m_parsing_user_id is null or parsing_user_id = m_parsing_user_id)
-                  and (m_program_id      is null or program_id      = m_program_id)
-                  and (m_child_number    is null or child_number    = m_child_number)
+&COMM_IF_LT_10G.  and (m_sql_id          is null or sql_id           =  m_sql_id)
+                  and (m_parsing_user_id is null or parsing_user_id  =  m_parsing_user_id)
+                  and (m_program_id      is null or program_id       =  m_program_id)
+                  and (m_last_active     is null or last_active_time >= m_last_active)
+                  and (m_child_number    is null or child_number     =  m_child_number)
                   and not lower (sql_text) like ('%dbms\_application\_info.%') escape '\'
                   and not lower (sql_text) like ('%xplan\_exec\_marker%') escape '\'
                 order by &MAIN_ORDER_BY. sql_text, child_number)

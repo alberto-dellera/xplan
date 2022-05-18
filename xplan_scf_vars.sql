@@ -5,7 +5,7 @@
 
 type scf_array_of_varchar2_t       is table of varchar2(1000 char) index by binary_integer;
 type scf_array_of_number_t         is table of number              index by binary_integer;
-type scf_hash_of_varchar2_to_num_t is table of number              index by varchar2(30);
+type scf_hash_of_varchar2_to_num_t is table of number              index by varchar2(50);
 
 type scf_col_state_t is record (
   sep_top    varchar2(1000 char), -- separator: top

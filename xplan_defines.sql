@@ -13,8 +13,8 @@ variable V_DB_MAJOR_VERSION  number
 variable V_DB_MINOR_VERSION  number
 variable V_DB_VERSION        varchar2(20 char)
 variable V_DB_VERSION_COMPAT varchar2(20 char)
-variable DB_NAME             varchar2(30 char)
-variable INSTANCE_NAME       varchar2(30 char)
+variable DB_NAME             varchar2(50 char)
+variable INSTANCE_NAME       varchar2(50 char)
 declare /* xplan_exec_marker */
   l_dummy_bi1  binary_integer;
   l_dummy_bi2  binary_integer;
@@ -86,9 +86,9 @@ variable OPT_LINES             number
 variable OPT_ASH_PROFILE_MINS  number
 variable OPT_MODULE            varchar2(100 char)
 variable OPT_ACTION            varchar2(100 char)
-variable OPT_HASH_VALUE        varchar2(30  char)
-variable OPT_PLAN_HASH_VALUE   varchar2(30  char)
-variable OPT_SQL_ID            varchar2(30  char)
+variable OPT_HASH_VALUE        varchar2(50  char)
+variable OPT_PLAN_HASH_VALUE   varchar2(50  char)
+variable OPT_SQL_ID            varchar2(50  char)
 variable OPT_PARSED_BY         varchar2(128 char)
 variable OPT_CALLED_BY         varchar2(257 char)
 variable OPT_LAST_ACTIVE       varchar2(60  char)
@@ -103,7 +103,7 @@ variable OPT_PARTINFOS         varchar2(1)
 variable OPT_SELF              varchar2(1)
 variable OPT_ORDER_BY          varchar2(100 char)
 variable OPT_SPOOL_NAME        varchar2(100 char)
-variable OPT_SPOOL_FILES       varchar2(30  char)
+variable OPT_SPOOL_FILES       varchar2(50  char)
 variable OPT_NUMBER_COMMAS     varchar2(1)
 variable OPT_COLORS            varchar2(1)
 
@@ -113,7 +113,7 @@ declare /* xplan_exec_marker */ -- process options
   l_opt_string varchar2(200 char) := :XPLAN_OPTIONS||',';
   l_curr_opt_str varchar2(200 char);
   l_first_colon int; l_first_eq int;
-  l_name varchar2(30 char); 
+  l_name varchar2(50 char); 
   l_value varchar2(200 char);
 begin  
   if :CURRENT_ERROR != 'processing XPLAN_OPTIONS' then

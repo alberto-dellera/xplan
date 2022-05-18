@@ -6,12 +6,12 @@
 /*
 type ref_object_t is record (
   object_id            int,
-  object_type          varchar2(30 char),
-  object_owner         varchar2(30 char),
-  object_name          varchar2(30 char),
+  object_type          varchar2(23 char),
+  object_owner         varchar2(128 char),
+  object_name          varchar2(128 char),
   base_table_object_id int,
-  base_table_owner     varchar2(30 char),
-  base_table_name      varchar2(30 char)
+  base_table_owner     varchar2(128 char),
+  base_table_name      varchar2(128 char)
 ); */
 
 function calc_base_table_object_id (p_object_id int)
@@ -198,15 +198,15 @@ end get_subpart_key_list;
 
 procedure print_table_infos (p_object_id int)
 is
-  type t_prog_number is table of binary_integer index by varchar2(61 char);
+  type t_prog_number is table of binary_integer index by varchar2(257 char);
   l_index_number   t_prog_number;
   l_cons_u_number  t_prog_number;
   l_cons_r_number  t_prog_number;
   l_cons_r2_number t_prog_number;
-  type t_virt_expressions is table of varchar2(2000 char) index by varchar2(30 char);
+  type t_virt_expressions is table of varchar2(2000 char) index by varchar2(128 char);
   l_virt_expressions t_virt_expressions;
-  l_table_owner varchar2(30) := get_cache_obj_owner (p_object_id);
-  l_table_name  varchar2(30) := get_cache_obj_name  (p_object_id);
+  l_table_owner varchar2(128) := get_cache_obj_owner (p_object_id);
+  l_table_name  varchar2(128) := get_cache_obj_name  (p_object_id);
   l_scf  scf_state_t;
   l_iot_type    sys.all_tables.iot_type%type;
   l_partitioned sys.all_tables.partitioned%type;
@@ -408,7 +408,7 @@ begin
   if l_virt_expressions.count > 0 then 
     scf_reset (l_scf);
     declare
-      l_colname varchar2(30);
+      l_colname varchar2(128);
     begin
       l_colname := l_virt_expressions.first;
       loop

@@ -102,8 +102,8 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.9.1 23-November-2021"
-define XPLAN_COPYRIGHT="(C) Copyright 2008-2021 Alberto Dell''Era, www.adellera.it"
+define XPLAN_VERSION="2.10.1 18-May-2022"
+define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
 set echo off verify off feedback off termout off timing off
@@ -172,7 +172,7 @@ declare /* xplan_exec_marker */ &ERROR_BEFORE_MAIN_BLOCK. -- main block
   m_module_like       varchar2(300 char) := :MODULE_LIKE;
   m_hash_value        number             := :OPT_HASH_VALUE;  
   m_plan_hash_value   number             := :OPT_PLAN_HASH_VALUE;
-  m_sql_id            varchar2(30 char)  := :OPT_SQL_ID;  
+  m_sql_id            varchar2(50 char)  := :OPT_SQL_ID;  
   m_parsing_user_id   number             := null;
   m_program_id        number             := null;
   m_last_active       date               := null;
@@ -488,7 +488,7 @@ begin
         print ('no tabinfos found.');
       else
         declare 
-          l_curr_id varchar2(30);
+          l_curr_id varchar2(50);
         begin
           l_curr_id := m_all_referenced_object_ids.first;
           loop

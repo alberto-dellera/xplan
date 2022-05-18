@@ -219,7 +219,7 @@ end print_obj_info_view;
 procedure print_obj_info_mview (p_owner varchar2, p_mview_name varchar2)
 is
   l_cols_string long;
-  l_table_name varchar2(30 char); 
+  l_table_name varchar2(128 char); 
   l_object_id number;
 begin
   for m in (select /*+ xplan_exec_marker */ container_name, compile_state, staleness, last_refresh_date

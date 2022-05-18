@@ -7,8 +7,8 @@ procedure extract_tag_value( p_xml clob, p_tag_name varchar2, p_tag_text out var
 is
   l_start int;
   l_end   int;
-  l_start_marker varchar2(30) := '<' || p_tag_name;
-  l_end_marker   varchar2(30) := '</' || p_tag_name || '>' ;
+  l_start_marker varchar2(50) := '<' || p_tag_name;
+  l_end_marker   varchar2(50) := '</' || p_tag_name || '>' ;
   l_next_chars   varchar2(2 char);
 begin
   l_start := dbms_lob.instr (p_xml, l_start_marker, 1);
@@ -45,8 +45,8 @@ function extract_tag(
   p_value      out varchar2) 
 return boolean
 is
-  l_start_section varchar2(30) := '<' || p_tag_name || ' ';
-  l_end_tag       varchar2(30) := '</' || p_tag_name || '>'; 
+  l_start_section varchar2(50) := '<' || p_tag_name || ' ';
+  l_end_tag       varchar2(50) := '</' || p_tag_name || '>'; 
   l_start         int;
   l_end_start_tag int;
   l_end           int;
@@ -104,7 +104,7 @@ is
   l_peeked_binds_types  long;
   l_peeked_str long;
   l_bind_num  int;
-  l_nam  varchar2(30 char);
+  l_nam  varchar2(128 char);
   l_dty  int;
   l_frm int;
   l_mxl int;
@@ -378,12 +378,12 @@ is
   type access_predicates_t     is table of sys.gv_$sql_plan.access_predicates%type index by binary_integer;
   type filter_predicates_t     is table of sys.gv_$sql_plan.filter_predicates%type index by binary_integer;
   type others_t                is table of sys.gv_$sql_plan.other            %type index by binary_integer;
-  type base_table_object_ids_t is table of varchar2(1)                       index by varchar2(30);
+  type base_table_object_ids_t is table of varchar2(1)                       index by varchar2(50);
   l_access_predicates access_predicates_t;
   l_filter_predicates filter_predicates_t;
   l_others            others_t;
   l_base_table_object_ids base_table_object_ids_t;
-  l_base_object_id_char varchar2(30);
+  l_base_object_id_char varchar2(50);
   l_plan  scf_state_t;
   l_plan2 scf_state_t;
   l_plan3 scf_state_t;
@@ -658,19 +658,19 @@ begin
   &COMM_IF_NO_DBMS_XPLAN.   l_dbms_xplan_format := 'ADVANCED'||l_dbms_xplan_tag||case when :v_db_major_version >= 12 then ' +ADAPTIVE +METRICS' end;
   &COMM_IF_NO_DBMS_XPLAN.   print ('===== dbms_xplan.display_cursor ('||l_dbms_xplan_format||'):');                    
   &COMM_IF_NO_DBMS_XPLAN.   open l_cursor for 
-  &COMM_IF_NO_DBMS_XPLAN.   with bas as (
-  &COMM_IF_NO_DBMS_XPLAN.     select /*+ xplan_exec_marker */ plan_table_output,
-  &COMM_IF_NO_DBMS_XPLAN.     to_number( regexp_substr(plan_table_output, '\| +Q?[0-9]*?,([0-9]*?) +\|', 1, 1, 'c', 1 ) ) as tq_second, -- keep aligned with xpm
-  &COMM_IF_NO_DBMS_XPLAN.     rownum as line_num
-  --&COMM_IF_NO_DBMS_XPLAN.   from table (sys.dbms_xplan.display_cursor (l_sql_id, p_child_number, l_dbms_xplan_format)); -- no inst_id parameter!
-  -- adapted from http://carlos-sierra.net/2013/06/17/using-dbms_xplan-to-display-cursor-plans-for-a-sql-in-all-rac-nodes/:
-  &COMM_IF_NO_DBMS_XPLAN.       from table( sys.dbms_xplan.display('sys.gv_$sql_plan_statistics_all', null, l_dbms_xplan_format, 'inst_id = '||p_inst_id||' and sql_id = '''||l_sql_id||''' and child_number = '||p_child_number ) )
-  &COMM_IF_NO_DBMS_XPLAN.   )
-  &COMM_IF_NO_DBMS_XPLAN.   select decode(:OPT_COLORS,'Y',chr(27)||'[38;5;'||to_char( nvl( 1 + mod(tq_second,14), 15 ), 'fm00') ||'m') || -- keep aligned with rows labeled as "plan_color" and ash_sqlid_drill.sql
-  &COMM_IF_NO_DBMS_XPLAN.          plan_table_output
-  &COMM_IF_NO_DBMS_XPLAN.          decode(:OPT_COLORS,'Y',chr(27)||'[0m') as plan_table_output
-  &COMM_IF_NO_DBMS_XPLAN.     from bas
-  &COMM_IF_NO_DBMS_XPLAN.    order by line_num;
+  &COMM_IF_NO_DBMS_XPLAN.     with bas as (
+  &COMM_IF_NO_DBMS_XPLAN.       select /*+ xplan_exec_marker */ plan_table_output,
+  &COMM_IF_NO_DBMS_XPLAN.              to_number( regexp_substr(plan_table_output, '\| +Q?[0-9]*?,([0-9]*?) +\|', 1, 1, 'c', 1 ) ) as tq_second, -- keep aligned with xpm: TBD, it changed in xpm, maybe not possible to align
+  &COMM_IF_NO_DBMS_XPLAN.              rownum as line_num
+  &COMM_IF_NO_DBMS_XPLAN.         -- from table (sys.dbms_xplan.display_cursor (l_sql_id, p_child_number, l_dbms_xplan_format)); -- no inst_id parameter!
+  &COMM_IF_NO_DBMS_XPLAN.         -- adapted from http://carlos-sierra.net/2013/06/17/using-dbms_xplan-to-display-cursor-plans-for-a-sql-in-all-rac-nodes/:
+  &COMM_IF_NO_DBMS_XPLAN.         from table( sys.dbms_xplan.display('sys.gv_$sql_plan_statistics_all', null, l_dbms_xplan_format, 'inst_id = '||p_inst_id||' and sql_id = '''||l_sql_id||''' and child_number = '||p_child_number ) )
+  &COMM_IF_NO_DBMS_XPLAN.     )
+  &COMM_IF_NO_DBMS_XPLAN.     select decode(:OPT_COLORS,'Y',chr(27)||'[38;5;'||to_char( nvl( 1 + mod(tq_second,14), 15 ), 'fm00') ||'m') || -- keep aligned with rows labeled as "plan_color" and ash_sqlid_drill.sql
+  &COMM_IF_NO_DBMS_XPLAN.            plan_table_output ||
+  &COMM_IF_NO_DBMS_XPLAN.            decode(:OPT_COLORS,'Y',chr(27)||'[0m') as plan_table_output
+  &COMM_IF_NO_DBMS_XPLAN.       from bas
+  &COMM_IF_NO_DBMS_XPLAN.      order by line_num;
   &COMM_IF_NO_DBMS_XPLAN.   loop
   &COMM_IF_NO_DBMS_XPLAN.     fetch l_cursor into l_tmp;
   &COMM_IF_NO_DBMS_XPLAN.     if l_cursor%notfound then

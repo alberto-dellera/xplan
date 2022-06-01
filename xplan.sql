@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.10.1 18-May-2022"
+define XPLAN_VERSION="2.10.2 01-June-2022"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -374,6 +374,7 @@ begin
         m_stmt := rtrim(m_stmt) || chr(13) || chr(10) || '** --TRUNCATED STATEMENT-- **' || chr(13) || chr(10); 
       end if;
       print_stmt_lines ( m_stmt );
+      print('---');
       
       -- object dependency infos: print and remember
       if :OPT_OBJINFOS = 'Y' then
@@ -413,7 +414,7 @@ begin
       &COMM_IF_LT_10G.   l_status        integer;
       &COMM_IF_LT_10G.   l_descTbl       dbms_sql.desc_tab;
       &COMM_IF_LT_10G.   l_colCnt        number;
-      &COMM_IF_LT_10G.   l_string        long;
+      &COMM_IF_LT_10G.   l_string        long := null;
       &COMM_IF_LT_10G.   l_reason        long;
       &COMM_IF_LT_10G. begin
       &COMM_IF_LT_10G.   dbms_sql.parse(  l_theCursor,
@@ -431,14 +432,18 @@ begin
       &COMM_IF_LT_10G.     for i in 1 .. l_colCnt loop
       &COMM_IF_LT_10G.       dbms_sql.column_value( l_theCursor, i, l_columnValue );
       &COMM_IF_LT_10G.       if l_descTbl(i).col_name = 'REASON' then 
-      &COMM_IF_LT_10G.         l_reason := l_columnValue;
-      &COMM_IF_LT_10G.       elsif l_descTbl(i).col_name not in ('INST_ID','SQL_ID','CHILD_NUMBER','ADDRESS','CHILD_ADDRESS') and l_columnValue != 'N' then 
-      &COMM_IF_LT_10G.         l_string := l_string || l_descTbl(i).col_name || ', ';
+      &COMM_IF_LT_10G.         l_reason := trim(l_columnValue);
+      &COMM_IF_LT_10G.       elsif l_descTbl(i).col_name not in ('INST_ID','SQL_ID','CHILD_NUMBER','ADDRESS','CHILD_ADDRESS','CON_ID') and l_columnValue != 'N' then
+      &COMM_IF_LT_10G.         if l_string is not null then l_string := l_string || ', '; end if;
+      &COMM_IF_LT_10G.         l_string := l_string || l_descTbl(i).col_name;
       &COMM_IF_LT_10G.       end if;
       &COMM_IF_LT_10G.     end loop;
       &COMM_IF_LT_10G.   end loop;
-      &COMM_IF_LT_10G.   if l_string is not null or l_reason is not null then 
-      &COMM_IF_LT_10G.     print( l_string || 'reason: ' || l_reason );
+      &COMM_IF_LT_10G.   if l_string is not null then 
+      &COMM_IF_LT_10G.     print( 'not shared because: ' || l_string );
+      &COMM_IF_LT_10G.   end if;
+      &COMM_IF_LT_10G.   if l_reason is not null then 
+      &COMM_IF_LT_10G.     print( 'not shared reason column : "' || l_reason || '"' );
       &COMM_IF_LT_10G.   end if;
       &COMM_IF_LT_10G.   dbms_sql.close_cursor( l_theCursor );
       &COMM_IF_LT_10G. end;

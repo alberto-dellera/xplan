@@ -22,7 +22,7 @@ begin
   -- gv$sql_plan.object# is always the object_id of the table, not the partition.
   -- Same for partitioned indexes.
   for o in (select /*+ xplan_exec_marker */ owner, object_name, object_type
-              from sys.all_objects
+              from sys.dba_objects
              where object_id = p_object_id)
   loop
     if o.object_type = 'TABLE' then
@@ -31,12 +31,12 @@ begin
       return null;
     elsif o.object_type in ('INDEX') then
       for o2 in (select /*+ xplan_exec_marker */ table_owner, table_name
-                   from sys.all_indexes
+                   from sys.dba_indexes
                   where owner = o.owner
                     and index_name = o.object_name)
       loop
         for o3 in (select /*+ xplan_exec_marker */ object_id
-                     from sys.all_objects
+                     from sys.dba_objects
                     where object_type = 'TABLE'
                       and owner = o2.table_owner
                       and object_name  = o2.table_name)
@@ -74,7 +74,7 @@ begin
       l_obj_infos.owner       := 'obj#'||p_object_id;
       l_obj_infos.object_name := 'obj#'||p_object_id;
       for r in (select /*+ xplan_exec_marker */ owner, object_name, object_type
-                 from sys.all_objects
+                 from sys.dba_objects
                 where object_id = p_object_id)
       loop
         --if r.object_type <> 'TABLE' then
@@ -122,12 +122,12 @@ is
 begin
   -- try FBI expression
   for i in (select /*+ xplan_exec_marker */ index_owner, index_name, column_position
-              from sys.all_ind_columns 
+              from sys.dba_ind_columns 
              where table_owner = p_table_owner and table_name = p_table_name
                and column_name = p_virt_col_name)
   loop
     for e in (select /*+ xplan_exec_marker */ column_expression 
-                from sys.all_ind_expressions
+                from sys.dba_ind_expressions
                where table_owner = p_table_owner and table_name = p_table_name
                  and index_owner = i.index_owner and index_name = i.index_name
                  and column_position = i.column_position)
@@ -144,7 +144,7 @@ begin
   -- try multi-column expression 
   &COMM_IF_LT_11G  if l_ret is null then 
   &COMM_IF_LT_11G.   for e in (select /*+ xplan_exec_marker */ extension
-  &COMM_IF_LT_11G.               from sys.all_stat_extensions
+  &COMM_IF_LT_11G.               from sys.dba_stat_extensions
   &COMM_IF_LT_11G.              where owner = p_table_owner and table_name = p_table_name
   &COMM_IF_LT_11G.                and extension_name = p_virt_col_name)
   &COMM_IF_LT_11G.   loop
@@ -164,7 +164,7 @@ is
   l_ret varchar2(500 char);
 begin
   for r in (select /*+ xplan_exec_marker */ column_name 
-              from sys.all_part_key_columns
+              from sys.dba_part_key_columns
              where owner       = p_owner
                and name        = p_name
                and object_type = p_object_type
@@ -185,7 +185,7 @@ is
   l_ret varchar2(500 char);
 begin
   for r in (select /*+ xplan_exec_marker */ column_name 
-              from sys.all_subpart_key_columns
+              from sys.dba_subpart_key_columns
              where owner       = p_owner
                and name        = p_name
                and object_type = p_object_type
@@ -208,10 +208,10 @@ is
   l_table_owner varchar2(128) := get_cache_obj_owner (p_object_id);
   l_table_name  varchar2(128) := get_cache_obj_name  (p_object_id);
   l_scf  scf_state_t;
-  l_iot_type    sys.all_tables.iot_type%type;
-  l_partitioned sys.all_tables.partitioned%type;
-  l_temporary   sys.all_tables.temporary%type;
-  l_duration    sys.all_tables.duration%type;
+  l_iot_type    sys.dba_tables.iot_type%type;
+  l_partitioned sys.dba_tables.partitioned%type;
+  l_temporary   sys.dba_tables.temporary%type;
+  l_duration    sys.dba_tables.duration%type;
   l_tmp long;
   l_tmp2 varchar2(1 char);
   l_data_mod varchar2(100 char);
@@ -221,7 +221,7 @@ begin
   -- label each index with a progressive number
   for i in (select /*+ xplan_exec_marker */
                    owner index_owner, index_name
-              from sys.all_indexes
+              from sys.dba_indexes
              where table_owner = l_table_owner and table_name = l_table_name
              order by index_name, owner -- keep this row aligned with rows labeled as "block b001" 
            )
@@ -231,7 +231,7 @@ begin
   -- label each unique/reference constraint with a progressive number
   -- UQ and from-this-table-to-others FK
   for co in (select /*+ xplan_exec_marker */ constraint_name, constraint_type
-               from sys.all_constraints
+               from sys.dba_constraints
               where owner = l_table_owner and table_name = l_table_name
                 and constraint_type in ('U','R')
               order by decode (constraint_type,'P',1,'U',2,'R',3), constraint_name -- keep this row aligned with rows labeled as "block b003"
@@ -250,11 +250,11 @@ begin
   begin
     select iot_type, partitioned, temporary, duration, num_rows
       into l_iot_type, l_partitioned, l_temporary, l_duration, l_num_rows
-      from sys.all_tables
+      from sys.dba_tables
      where owner = l_table_owner and table_name = l_table_name;
   exception
     when no_data_found then
-      print (l_table_owner||'.'||l_table_name||' not found in all_tables.');
+      print (l_table_owner||'.'||l_table_name||' not found in dba_tables.');
       return;
   end;
   
@@ -264,7 +264,7 @@ begin
   
   if l_partitioned='YES' then
     for r in (select /*+ xplan_exec_marker */ partitioning_type, subpartitioning_type 
-                from sys.all_part_tables
+                from sys.dba_part_tables
                where owner = l_table_owner and table_name = l_table_name)
     loop
       print ('PARTITIONED BY '||r.partitioning_type||' ( '||get_part_key_list(l_table_owner,l_table_name,'TABLE')||' ) ');
@@ -285,7 +285,7 @@ begin
   for c in (select /*+ xplan_exec_marker */ column_id, internal_column_id, column_name, nullable, 
                    data_type, data_length, data_precision, data_scale,
                    char_used, char_length, hidden_column, virtual_column
-              from sys.all_tab_cols
+              from sys.dba_tab_cols
              where owner = l_table_owner and table_name = l_table_name
              order by column_id, internal_column_id -- keep this row aligned with rows labeled as "block b002"
             )
@@ -324,14 +324,14 @@ begin
   -- add to each indexed column a pointer to indexing index (via index#)
   for i in (select /*+ xplan_exec_marker */
                    owner index_owner, index_name, uniqueness
-              from sys.all_indexes
+              from sys.dba_indexes
              where table_owner = l_table_owner and table_name = l_table_name
              order by index_name, owner -- keep this row aligned with rows labeled as "block b001" 
            ) 
   loop
     l_tmp := to_char(l_index_number(i.index_owner||'.'||i.index_name));
     for r in (select /*+ xplan_exec_marker */ ic.column_position
-                from sys.all_tab_cols c, sys.all_ind_columns ic
+                from sys.dba_tab_cols c, sys.dba_ind_columns ic
                where c.owner = l_table_owner and c.table_name = l_table_name
                  and c.column_name = ic.column_name(+)
                  and ic.table_owner(+) = l_table_owner and ic.table_name(+) = l_table_name
@@ -352,7 +352,7 @@ begin
   -- add to each constrained column a label marking it as constrained
   -- 1) UQ and from-this-table-to-others FK
   for co in (select /*+ xplan_exec_marker */ constraint_name, constraint_type
-               from sys.all_constraints
+               from sys.dba_constraints
               where owner = l_table_owner and table_name = l_table_name
                 and constraint_type in ('P','U','R')
               order by decode (constraint_type,'P',1,'U',2,'R',3), constraint_name -- keep this row aligned with rows labeled as "block b003"
@@ -369,7 +369,7 @@ begin
     l_tmp2 := '';
     if co.constraint_type in ('P','U') then
       for r in (select constraint_name
-                  from sys.all_constraints
+                  from sys.dba_constraints
                  where constraint_type = 'R'
                    and r_owner = l_table_owner and r_constraint_name = co.constraint_name
                    and rownum = 1
@@ -381,7 +381,7 @@ begin
     end if;
     
     for c in (select /*+ xplan_exec_marker */ c.column_id, c.internal_column_id, c.virtual_column, c.column_name, cc.position
-                from sys.all_tab_cols c, sys.all_cons_columns cc
+                from sys.dba_tab_cols c, sys.dba_cons_columns cc
                where c.owner = l_table_owner and c.table_name = l_table_name
                  and c.column_name = cc.column_name(+)
                  and cc.owner(+) = l_table_owner and cc.table_name(+) = l_table_name
@@ -426,18 +426,18 @@ begin
   for r in (select /*+ xplan_exec_marker */
                    '1' typ, cast(null as number) partition_position, null as partition_name, cast(null as number) subpartition_position, null as subpartition_name, 
                    num_rows, blocks, empty_blocks, avg_row_len, sample_size, last_analyzed, degree
-              from sys.all_tables
+              from sys.dba_tables
              where owner = l_table_owner and table_name = l_table_name
              union all
             select '2' typ, partition_position, partition_name, null as subpartition_position, null as subpartition_name, 
                    num_rows, blocks, empty_blocks, avg_row_len, sample_size, last_analyzed, null as degree
-              from sys.all_tab_partitions
+              from sys.dba_tab_partitions
              where table_owner = l_table_owner and table_name = l_table_name
                and :OPT_PARTINFOS = 'Y'
              union all
             select '3' typ, p.partition_position, s.partition_name, s.subpartition_position, s.subpartition_name, 
                    s.num_rows, s.blocks, s.empty_blocks, s.avg_row_len, s.sample_size, s.last_analyzed, null as degree
-              from sys.all_tab_subpartitions s, sys.all_tab_partitions p
+              from sys.dba_tab_subpartitions s, sys.dba_tab_partitions p
              where s.table_owner = l_table_owner and s.table_name = l_table_name
                and p.table_owner = l_table_owner and p.table_name = l_table_name
                and s.partition_name = p.partition_name
@@ -468,13 +468,13 @@ begin
                    '1' typ, column_id, internal_column_id, column_name, cast(null as number) partition_position, null as partition_name, cast(null as number) subpartition_position, null as subpartition_name, 
                    num_distinct, density, num_nulls, num_buckets, avg_col_len, sample_size, last_analyzed
                    &COMM_IF_LT_10G. , histogram
-              from sys.all_tab_cols
+              from sys.dba_tab_cols
              where owner = l_table_owner and table_name = l_table_name
              union all
             select '2' typ, c.column_id, c.internal_column_id, c.column_name, p.partition_position, pcs.partition_name, null as subpartition_position, null as subpartition_name, 
                    pcs.num_distinct, pcs.density, pcs.num_nulls, pcs.num_buckets, pcs.avg_col_len, pcs.sample_size, pcs.last_analyzed
                    &COMM_IF_LT_10G. , pcs.histogram
-              from sys.all_part_col_statistics pcs, sys.all_tab_cols c, sys.all_tab_partitions p
+              from sys.dba_part_col_statistics pcs, sys.dba_tab_cols c, sys.dba_tab_partitions p
              where pcs.owner     = l_table_owner and pcs.table_name = l_table_name
                and c.owner       = l_table_owner and c.table_name   = l_table_name
                and p.table_owner = l_table_owner and p.table_name   = l_table_name
@@ -485,7 +485,7 @@ begin
             select '3' typ, c.column_id, c.internal_column_id, c.column_name, p.partition_position, p.partition_name, s.subpartition_position, s.subpartition_name, 
                    scs.num_distinct, scs.density, scs.num_nulls, scs.num_buckets, scs.avg_col_len, scs.sample_size, scs.last_analyzed
                    &COMM_IF_LT_10G. , scs.histogram
-              from sys.all_subpart_col_statistics scs, sys.all_tab_cols c, sys.all_tab_subpartitions s, sys.all_tab_partitions p
+              from sys.dba_subpart_col_statistics scs, sys.dba_tab_cols c, sys.dba_tab_subpartitions s, sys.dba_tab_partitions p
              where scs.owner     = l_table_owner and scs.table_name = l_table_name
                and c.owner       = l_table_owner and c.table_name   = l_table_name
                and s.table_owner = l_table_owner and s.table_name   = l_table_name
@@ -522,7 +522,7 @@ begin
   --------------- indexes ---------------
   for i in (select /*+ xplan_exec_marker */
                    owner index_owner, index_name, partitioned, uniqueness, index_type
-              from sys.all_indexes
+              from sys.dba_indexes
              where table_owner = l_table_owner and table_name = l_table_name
              order by index_name, owner -- keep this row aligned with rows labeled as "block b001" 
            ) 
@@ -531,7 +531,7 @@ begin
     print ('### index #'||l_index_number(i.index_owner||'.'||i.index_name)||': '||i.index_owner||'.'||i.index_name);
     l_tmp := null;
     for c in (select column_name, descend 
-                from sys.all_ind_columns
+                from sys.dba_ind_columns
                where table_owner = l_table_owner and table_name = l_table_name 
                  and index_owner = i.index_owner and index_name = i.index_name
                order by column_position)
@@ -544,7 +544,7 @@ begin
     
     if i.partitioned='YES' then
       for r in (select /*+ xplan_exec_marker */ partitioning_type, subpartitioning_type, locality 
-                  from sys.all_part_indexes
+                  from sys.dba_part_indexes
                  where owner = i.index_owner and index_name = i.index_name)
       loop
         print (r.locality||' PARTITIONED BY '||r.partitioning_type||' ( '||get_part_key_list(i.index_owner,i.index_name,'INDEX')||' ) ');
@@ -561,18 +561,18 @@ begin
     for r in (select /*+ xplan_exec_marker */
                      '1' typ, cast(null as number) partition_position, null as partition_name, cast(null as number) subpartition_position, null as subpartition_name, 
                      distinct_keys, num_rows, blevel, leaf_blocks, clustering_factor as cluf, sample_size, last_analyzed, degree
-                from sys.all_indexes
+                from sys.dba_indexes
                where owner = i.index_owner and index_name = i.index_name
                union all
               select '2' typ, partition_position, partition_name, null as subpartition_position, null as subpartition_name, 
                      distinct_keys, num_rows, blevel, leaf_blocks, clustering_factor as cluf, sample_size, last_analyzed, null as degree
-                from sys.all_ind_partitions
+                from sys.dba_ind_partitions
                where index_owner = i.index_owner and index_name = i.index_name
                  and :OPT_PARTINFOS = 'Y'
                union all
               select '3' typ, p.partition_position, s.partition_name, s.subpartition_position, s.subpartition_name, 
                      s.distinct_keys, s.num_rows, s.blevel, s.leaf_blocks, s.clustering_factor as cluf, s.sample_size, s.last_analyzed, null as degree
-                from sys.all_ind_subpartitions s, sys.all_ind_partitions p
+                from sys.dba_ind_subpartitions s, sys.dba_ind_partitions p
                where s.index_owner = i.index_owner and s.index_name = i.index_name
                  and p.index_owner = i.index_owner and p.index_name = i.index_name
                  and s.partition_name = p.partition_name
@@ -639,7 +639,7 @@ begin
   
   m_cache_program_info(p_program_id) := '(not found)'||p_program_id;
   for r in (select /*+ xplan_exec_marker */ owner, object_name, object_type
-              from sys.all_objects
+              from sys.dba_objects
              where object_id = p_program_id) 
   loop
     m_cache_program_info(p_program_id) := r.object_type ||' '||r.owner||'.'||r.object_name;
@@ -675,7 +675,7 @@ begin
   begin 
     select /*+ rule xplan_exec_marker */ object_id
       into m_cache_program_id(p_program)
-      from sys.all_objects
+      from sys.dba_objects
      where owner = l_owner
        and object_name = l_name
        and object_type in ('PROCEDURE', 'FUNCTION', 'PACKAGE BODY', 'TYPE BODY', 'TRIGGER');
@@ -708,7 +708,7 @@ begin
   
   m_cache_username(p_user_id) := '(not found)'||p_user_id;
   for r in (select /*+ xplan_exec_marker */ username
-              from sys.all_users
+              from sys.dba_users
              where user_id = p_user_id) 
   loop
     m_cache_username(p_user_id) := r.username;
@@ -735,7 +735,7 @@ begin
   
   m_cache_user_id(p_username) := -1;
   for r in (select /*+ xplan_exec_marker */ user_id
-              from sys.all_users
+              from sys.dba_users
              where username = p_username) 
   loop
     m_cache_user_id(p_username) := r.user_id;

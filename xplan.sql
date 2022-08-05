@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.10.2 01-June-2022"
+define XPLAN_VERSION="2.10.3 05-August-2022"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 

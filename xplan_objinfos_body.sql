@@ -10,7 +10,7 @@ is
 begin
   for s in (select /*+ xplan_exec_marker */ sequence_name, min_value, max_value, increment_by,
                    cycle_flag, order_flag, cache_size, last_number 
-              from sys.all_sequences 
+              from sys.dba_sequences 
              where sequence_owner = p_owner 
                and sequence_name  = p_seq_name)
   loop
@@ -34,7 +34,7 @@ begin
   -- print ('syn ' ||p_owner||' '||p_syn_name);
   
   for s in (select /*+ ordered use_nl(o) xplan_exec_marker */ a.table_owner, a.table_name, a.db_link, o.object_type
-              from sys.all_synonyms a, sys.all_objects o
+              from sys.dba_synonyms a, sys.dba_objects o
              where a.owner        = p_owner
                and a.synonym_name = p_syn_name
                and a.table_owner  = o.owner
@@ -57,13 +57,13 @@ function calc_type_of_unknown(
 )
 return varchar2
 is
-  l_type_string sys.all_objects.object_type%type;
+  l_type_string sys.dba_objects.object_type%type;
 begin
   --print( 'calc_type_of_unknown '||p_owner||'.'||p_name||' trying ...');
 
   select /*+ xplan_exec_marker */ o.object_type
     into l_type_string
-    from sys.all_objects o
+    from sys.dba_objects o
    where owner = p_owner
      and object_name = p_name;
      
@@ -117,7 +117,7 @@ begin
     end if;
     
     -- almost all of the gv$ and v$ are generically reported as views in 9i, 10g(?), 11g, 
-    -- but they are fixed views, hence not present in all_views
+    -- but they are fixed views, hence not present in dba_views
     -- E.g. SYS.V$OBJECT_USAGE is a view, not a fixed view; almost all others are fixed views
     if p_type_string = 'VIEW' and p_owner = 'SYS' and (p_name like 'V$%' or p_name like 'GV$%') then
     
@@ -199,7 +199,7 @@ is
   l_cols_string long;
 begin
   for c in (select /*+ xplan_exec_marker */ column_id, column_name, data_type 
-             from sys.all_tab_cols
+             from sys.dba_tab_cols
             where owner      = p_owner
               and table_name = p_view_name
             order by column_id) 
@@ -208,7 +208,7 @@ begin
   end loop;
   print ('view columns: '||rtrim(l_cols_string,','));
   
-  print_long (p_query => 'select /*+ xplan_exec_marker */ text from sys.all_views where owner = :1 and view_name = :2',
+  print_long (p_query => 'select /*+ xplan_exec_marker */ text from sys.dba_views where owner = :1 and view_name = :2',
               p_bind_1_name => ':1', p_bind_1_value => p_owner,
               p_bind_2_name => ':2', p_bind_2_value => p_view_name);
 exception
@@ -223,7 +223,7 @@ is
   l_object_id number;
 begin
   for m in (select /*+ xplan_exec_marker */ container_name, compile_state, staleness, last_refresh_date
-              from sys.all_mviews 
+              from sys.dba_mviews 
              where owner = p_owner
                and mview_name = p_mview_name)
   loop
@@ -233,7 +233,7 @@ begin
   end loop;
      
   for c in (select /*+ xplan_exec_marker */ column_id, column_name, data_type 
-             from sys.all_tab_cols
+             from sys.dba_tab_cols
             where owner      = p_owner
               and table_name = l_table_name
             order by column_id) 
@@ -242,13 +242,13 @@ begin
   end loop;
   print ('view columns: '||rtrim(l_cols_string,','));
   
-  print_long (p_query => 'select /*+ xplan_exec_marker */ query from sys.all_mviews where owner = :1 and mview_name = :2',
+  print_long (p_query => 'select /*+ xplan_exec_marker */ query from sys.dba_mviews where owner = :1 and mview_name = :2',
               p_bind_1_name => ':1', p_bind_1_value => p_owner,
               p_bind_2_name => ':2', p_bind_2_value => p_mview_name);
               
   select /*+ xplan_exec_marker */ object_id
     into l_object_id
-    from sys.all_objects
+    from sys.dba_objects
    where owner = p_owner
      and object_name = l_table_name
      and object_type = 'TABLE';
@@ -266,7 +266,7 @@ is
   l_view_definition sys.v_$fixed_view_definition.view_definition%type;
 begin
   for c in (select /*+ xplan_exec_marker */ column_id, column_name, data_type 
-             from sys.all_tab_cols
+             from sys.dba_tab_cols
             where owner = p_owner
               and table_name = replace (p_view_name, 'V$', 'V_$')
             order by column_id) 
@@ -298,7 +298,7 @@ begin
   
   for a in (select /*+ xplan_exec_marker */ def_selectivity, def_cpu_cost, def_io_cost, def_net_cost,
                    statstype_schema, statstype_name
-              from sys.all_associations
+              from sys.dba_associations
              where object_owner = p_owner
                and object_name  = p_name
                and object_type  = p_type_str)
@@ -323,7 +323,7 @@ procedure print_obj_info_dba_source (p_owner varchar2, p_name varchar2, p_type_s
 is
 begin
   for l in (select /*+ xplan_exec_marker */ text 
-              from sys.all_source
+              from sys.dba_source
              where owner = p_owner
                and name = p_name
                and type = p_type_str

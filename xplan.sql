@@ -443,6 +443,7 @@ begin
       &COMM_IF_LT_10G.     print( 'not shared because: ' || l_string );
       &COMM_IF_LT_10G.   end if;
       &COMM_IF_LT_10G.   if l_reason is not null then 
+      &COMM_IF_LT_10G.     l_reason := replace(l_reason, '<ChildNode><', chr(10)||'<ChildNode>');
       &COMM_IF_LT_10G.     print( 'not shared reason column : "' || l_reason || '"' );
       &COMM_IF_LT_10G.   end if;
       &COMM_IF_LT_10G.   dbms_sql.close_cursor( l_theCursor );

@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.10.4 22-September-2022"
+define XPLAN_VERSION="2.10.5 22-September-2022"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -299,11 +299,13 @@ begin
       print (m_line);
 
       m_line := '';
-      m_line := m_line || 'status='|| stmt.object_status; -- TBD
+      m_line := m_line || 'status='|| stmt.object_status;
       &COMM_IF_LT_12CR2. if stmt.is_rolling_invalid         != 'N' then m_line := m_line || ' IS_ROLLING_INVALID='        || stmt.is_rolling_invalid;         end if;
       &COMM_IF_LT_12CR2. if stmt.is_rolling_refresh_invalid != 'N' then m_line := m_line || ' IS_ROLLING_REFRESH_INVALID='|| stmt.is_rolling_refresh_invalid; end if;
       &COMM_IF_LT_12CR2. if stmt.ddl_no_invalidate          != 'N' then m_line := m_line || ' DDL_NO_INVALIDATE='         || stmt.ddl_no_invalidate;          end if; 
                          if stmt.is_obsolete                != 'N' then m_line := m_line || ' IS_OBSOLETE='               || stmt.is_obsolete;                end if; 
+      &COMM_IF_LT_19C.   if stmt.sql_quarantine is not null        then m_line := m_line || ' SQL_QUARANTINE='            || stmt.sql_quarantine;             end if; 
+      &COMM_IF_LT_18C.   if stmt.result_cache != 'N'               then m_line := m_line || ' RESULT_CACHE='              || stmt.result_cache;               end if; 
       print (m_line);
 
       m_line := '';

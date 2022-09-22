@@ -32,6 +32,8 @@ end;
 /
 
 -- set version-dependent commenting-out defines
+define COMM_IF_LT_19C="error"
+define COMM_IF_LT_18C="error"
 define COMM_IF_LT_12CR2="error"
 define COMM_IF_LT_12C="error"
 define COMM_IF_LT_11GR2="error"
@@ -39,6 +41,8 @@ define COMM_IF_LT_11G="error"
 define COMM_IF_LT_10GR2="error"
 define COMM_IF_LT_10G="error"
 define COMM_IF_GT_9I="error"
+col COMM_IF_LT_19C   noprint new_value COMM_IF_LT_19C
+col COMM_IF_LT_18C   noprint new_value COMM_IF_LT_18C
 col COMM_IF_LT_12CR2 noprint new_value COMM_IF_LT_12CR2
 col COMM_IF_LT_12C   noprint new_value COMM_IF_LT_12C
 col COMM_IF_LT_11GR2 noprint new_value COMM_IF_LT_11GR2
@@ -49,6 +53,8 @@ col COMM_IF_GT_9I    noprint new_value COMM_IF_GT_9I
 col COMM_IF_GT_10G   noprint new_value COMM_IF_GT_10G
 col COMM_IF_GT_10GR1 noprint new_value COMM_IF_GT_10GR1
 select /*+ xplan_exec_marker */
+       case when :v_db_major_version < 19 then '--' else '' end COMM_IF_LT_19C,
+       case when :v_db_major_version < 19 then '--' else '' end COMM_IF_LT_18C,
        case when :v_db_major_version < 11 or (:v_db_major_version = 12 and :v_db_minor_version < 2) then '--' else '' end COMM_IF_LT_12CR2,
        case when :v_db_major_version < 12 then '--' else '' end COMM_IF_LT_12C,
        case when :v_db_major_version < 11 or (:v_db_major_version = 11 and :v_db_minor_version < 2) then '--' else '' end COMM_IF_LT_11GR2,  

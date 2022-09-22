@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.10.3 05-August-2022"
+define XPLAN_VERSION="2.10.4 22-September-2022"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -286,12 +286,10 @@ begin
       -- main statement attributes
       m_line := '';
       &COMM_IF_LT_10G. if stmt.sql_id is not null then m_line := m_line || 'sql_id=' || stmt.sql_id || ' '; end if;
+      if stmt.child_number is not null then m_line := m_line || 'child_number=' || stmt.child_number || ' '; end if;
       &COMM_IF_LT_10G. if stmt.force_matching_signature is not null then m_line := m_line || 'force_matching_signature=' || stmt.force_matching_signature || ' '; end if;
       if stmt.hash_value is not null then m_line := m_line || 'hash=' || stmt.hash_value || ' '; end if;
-      if stmt.child_number is not null then m_line := m_line || 'child_number=' || stmt.child_number || ' '; end if;
       if stmt.plan_hash_value is not null then m_line := m_line || 'plan_hash=' || stmt.plan_hash_value || ' '; end if;
-      if stmt.module is not null then m_line := m_line || 'module=' || stmt.module || ' '; end if;
-      if stmt.action is not null then m_line := m_line || 'action=' || stmt.action || ' '; end if;
       print (m_line);
       
       m_line := '';
@@ -299,10 +297,20 @@ begin
       m_line := m_line || ' last_load: ' || to_char ( to_date (stmt. last_load_time, 'yyyy-mm-dd/hh24:mi:ss'),'yyyy/mm/dd hh24:mi:ss');
       &COMM_IF_LT_10GR2. m_line := m_line || ' last_active: '|| to_char (stmt.last_active_time,'yyyy/mm/dd hh24:mi:ss');
       print (m_line);
-      
+
+      m_line := '';
+      m_line := m_line || 'status='|| stmt.object_status; -- TBD
+      &COMM_IF_LT_12CR2. if stmt.is_rolling_invalid         != 'N' then m_line := m_line || ' IS_ROLLING_INVALID='        || stmt.is_rolling_invalid;         end if;
+      &COMM_IF_LT_12CR2. if stmt.is_rolling_refresh_invalid != 'N' then m_line := m_line || ' IS_ROLLING_REFRESH_INVALID='|| stmt.is_rolling_refresh_invalid; end if;
+      &COMM_IF_LT_12CR2. if stmt.ddl_no_invalidate          != 'N' then m_line := m_line || ' DDL_NO_INVALIDATE='         || stmt.ddl_no_invalidate;          end if; 
+                         if stmt.is_obsolete                != 'N' then m_line := m_line || ' IS_OBSOLETE='               || stmt.is_obsolete;                end if; 
+      print (m_line);
+
       m_line := '';
       m_line := m_line || 'parsed_by='|| get_cache_username (stmt.parsing_user_id);
       m_line := m_line || ' inst_id='|| stmt.inst_id;
+      if stmt.module is not null then m_line := m_line || ' module=' || stmt.module; end if;
+      if stmt.action is not null then m_line := m_line || ' action=' || stmt.action; end if;
       &COMM_IF_LT_10G. if stmt.sql_profile is not null then m_line := m_line ||' sql_profile=' || stmt.sql_profile; end if;
       &COMM_IF_LT_10G. if stmt.program_id <> 0 then
       &COMM_IF_LT_10G.   m_line := m_line || ' program="' || get_cache_program_info (stmt.program_id) || '" line='||stmt.program_line#;

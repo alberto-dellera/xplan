@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.10.5 22-September-2022"
+define XPLAN_VERSION="2.11 20-December-2022"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -395,13 +395,16 @@ begin
       
       -- bind sensitive, bind aware (11g Adaptive Cursor Sharing); reoptimizable (12c Adaptive Statistics); resolved adpative plan (12c Adaptive Plans)
       &COMM_IF_LT_11G.m_line := '';
-      &COMM_IF_LT_11G. if stmt.is_bind_sensitive         = 'Y' then m_line := m_line || 'bind_sensitive '       ; end if;
-      &COMM_IF_LT_11G. if stmt.is_bind_aware             = 'Y' then m_line := m_line || 'bind_aware '           ; end if;  
-      &COMM_IF_LT_11G. if stmt.is_shareable              = 'N' then m_line := m_line || 'not_shareable '        ; end if;  
-      &COMM_IF_LT_12C. if stmt.is_reoptimizable          = 'Y' then m_line := m_line ||' reoptimizable'         ; end if;
+      &COMM_IF_LT_11G. if stmt.is_bind_sensitive         = 'Y' then m_line := m_line || 'bind_sensitive '        ; end if;
+      &COMM_IF_LT_11G. if stmt.is_bind_aware             = 'Y' then m_line := m_line || 'bind_aware '            ; end if;  
+      &COMM_IF_LT_11G. if stmt.is_shareable              = 'N' then m_line := m_line || 'not_shareable '         ; end if;  
+      &COMM_IF_LT_12C. if stmt.is_reoptimizable          = 'Y' then m_line := m_line ||' reoptimizable'          ; end if;
       &COMM_IF_LT_12C. if stmt.is_resolved_adaptive_plan = 'Y' then m_line := m_line ||' resolved adaptive plan!'; end if;
       &COMM_IF_LT_11G. print(m_line);
-      &COMM_IF_LT_11G. if stmt.is_bind_aware     = 'Y' then
+      &COMM_IF_LT_11G. if stmt.is_bind_aware = 'Y' then
+      &COMM_IF_LT_11G.   -- from https://hourim.files.wordpress.com/2015/11/all-on-adaptive-and-extended-cursor-sharing1.pdf
+      &COMM_IF_LT_11G.   -- one rule for becoming bind_aware is bkt[0] == bkt[1] or bkt[1] == bkt[2], i.e. adjacent buckets have the same count of executions
+      &COMM_IF_LT_11G.   -- another seems to be that bkt[2] is about 3-4 times bkt[0]
       &COMM_IF_LT_11G.   for x in (select /*+ xplan_exec_marker */ range_id, rtrim(predicate,chr(0)) as predicate, rtrim(low,chr(0)) as low, rtrim(high,chr(0)) as high 
       &COMM_IF_LT_11G.               from sys.gv_$sql_cs_selectivity
       &COMM_IF_LT_11G.              where inst_id      = :OPT_INST_ID 
@@ -409,9 +412,23 @@ begin
       &COMM_IF_LT_11G.                and hash_value   = stmt.hash_value 
       &COMM_IF_LT_11G.                and sql_id       = stmt.sql_id 
       &COMM_IF_LT_11G.                and child_number = stmt.child_number
-      &COMM_IF_LT_11G.              order by range_id, rtrim(predicate,chr(0)) )
+      &COMM_IF_LT_11G.              order by rtrim(predicate,chr(0)), low, high )
       &COMM_IF_LT_11G.   loop
-      &COMM_IF_LT_11G.     print(x.range_id||'] '||x.predicate||' '||x.low||' <-> '||x.high);
+      &COMM_IF_LT_11G.     print('| acs bind-aware selectivity: '||x.predicate||' '||x.low||' <-> '||x.high||' [range id '||x.range_id||']');
+      &COMM_IF_LT_11G.   end loop;
+      &COMM_IF_LT_11G. elsif stmt.is_bind_sensitive = 'Y' then -- do not print v$sql_cs_histogram if bind-aware since they are not used anymore
+      &COMM_IF_LT_11G.   -- from https://antognini.ch/2019/04/vsql_cs_histograms-what-are-the-buckets-thresholds/
+      &COMM_IF_LT_11G.   -- according to Chris, bucket assignment rules are not always straighforward; basically they are 1-1000-1000000
+      &COMM_IF_LT_11G.   for x in (select /*+ xplan_exec_marker */ bucket_id, "COUNT", case bucket_id when 0 then 1 when 1 then 1000 when 2 then 1000000 else -1 end as thr 
+      &COMM_IF_LT_11G.               from sys.gv_$sql_cs_histogram
+      &COMM_IF_LT_11G.              where inst_id      = :OPT_INST_ID 
+      &COMM_IF_LT_11G.                and address      = stmt.address
+      &COMM_IF_LT_11G.                and hash_value   = stmt.hash_value 
+      &COMM_IF_LT_11G.                and sql_id       = stmt.sql_id 
+      &COMM_IF_LT_11G.                and child_number = stmt.child_number
+      &COMM_IF_LT_11G.              order by bucket_id )
+      &COMM_IF_LT_11G.   loop
+      &COMM_IF_LT_11G.     print('| acs bind-sensitive hist: bkt ['||x.bucket_id||'], count <= '||lpad(x.thr, 7)||' -> '||x."COUNT");
       &COMM_IF_LT_11G.   end loop;
       &COMM_IF_LT_11G. end if; 
 

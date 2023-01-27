@@ -102,8 +102,8 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.11 20-December-2022"
-define XPLAN_COPYRIGHT="(C) Copyright 2008-2022 Alberto Dell''Era, www.adellera.it"
+define XPLAN_VERSION="2.12 27-January-2023"
+define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
 set echo off verify off feedback off termout off timing off
@@ -414,7 +414,11 @@ begin
       &COMM_IF_LT_11G.                and child_number = stmt.child_number
       &COMM_IF_LT_11G.              order by rtrim(predicate,chr(0)), low, high )
       &COMM_IF_LT_11G.   loop
-      &COMM_IF_LT_11G.     print('| acs bind-aware selectivity: '||x.predicate||' '||x.low||' <-> '||x.high||' [range id '||x.range_id||']');
+      &COMM_IF_LT_11G.     print('| acs bind-aware selectivity: '||x.predicate||' '
+      &COMM_IF_LT_11G.            ||case when x.low = 0 then '(exactly zero)' else to_char(x.low,'tm9') end
+      &COMM_IF_LT_11G.            ||' <-> '
+      &COMM_IF_LT_11G.            ||case when x.high = 0 then '(exactly zero)' else to_char(x.high,'tm9') end
+      &COMM_IF_LT_11G.            ||' [range id '||x.range_id||']');
       &COMM_IF_LT_11G.   end loop;
       &COMM_IF_LT_11G. elsif stmt.is_bind_sensitive = 'Y' then -- do not print v$sql_cs_histogram if bind-aware since they are not used anymore
       &COMM_IF_LT_11G.   -- from https://antognini.ch/2019/04/vsql_cs_histograms-what-are-the-buckets-thresholds/

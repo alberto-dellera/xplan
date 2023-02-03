@@ -362,17 +362,17 @@ begin
 end extract_adaptive_inactive;
 
 procedure print_plan (
-  p_inst_id           sys.gv_$sql.inst_id%type,
-  p_address           sys.gv_$sql.address%type, 
-  p_child_address     sys.gv_$sql.child_address%type,
-  p_hash_value        sys.gv_$sql.hash_value%type, 
-  p_child_number      sys.gv_$sql.child_number%type,
-  p_executions        int,
-  p_first_load_time   date,
-  p_last_load_time    date,
-  p_last_active_time  date default null, -- null if not 10gR2+
-  p_sql_plan_baseline varchar2 default null,  -- null if not 11g+
-  p_is_is_resolved_adaptive_plan varchar2 default null -- null if not 12c+
+  p_inst_id                   sys.gv_$sql.inst_id%type,
+  p_address                   sys.gv_$sql.address%type, 
+  p_child_address             sys.gv_$sql.child_address%type,
+  p_hash_value                sys.gv_$sql.hash_value%type, 
+  p_child_number              sys.gv_$sql.child_number%type,
+  p_executions                int,
+  p_first_load_time           date,
+  p_last_load_time            date,
+  p_last_active_time          date default null, -- null if not 10gR2+
+  p_sql_plan_baseline         varchar2 default null,  -- null if not 11g+
+  p_is_resolved_adaptive_plan varchar2 default null -- null if not 12c+
 )
 is
   type access_predicates_t     is table of sys.gv_$sql_plan.access_predicates%type index by binary_integer;
@@ -504,7 +504,7 @@ begin
     &COMM_IF_LT_10G. if s.id = 1 then 
     &COMM_IF_LT_10GR2. print_peeked_binds (s.other_xml); 
     &COMM_IF_LT_10GR2. print_notes (s.other_xml); 
-    &COMM_IF_LT_12C.   if p_is_is_resolved_adaptive_plan = 'Y' then extract_adaptive_inactive( s.other_xml, l_adaptive_inactive ); end if;
+    &COMM_IF_LT_12C.   if p_is_resolved_adaptive_plan = 'Y' then extract_adaptive_inactive( s.other_xml, l_adaptive_inactive ); end if;
     &COMM_IF_LT_10G.   if p_sql_plan_baseline is not null then print('sql plan baseline : '||p_sql_plan_baseline); end if;
     &COMM_IF_LT_10G. end if;
     
@@ -523,7 +523,7 @@ begin
     scf_add_elem (l_plan, 'Ela', s.elapsed_time / l_execs, p_sep_mid => l_col_tag, p_sep_bot=>'usec');
     &COMM_IF_NO_SELF scf_add_self (l_plan, 'Ela+', p_self_src => 'Ela'); 
     scf_add_elem (l_plan, 'Starts', s.starts / l_execs, p_sep_mid => l_col_tag);
-    &COMM_IF_LT_12C. if p_is_is_resolved_adaptive_plan = 'Y' then
+    &COMM_IF_LT_12C. if p_is_resolved_adaptive_plan = 'Y' then
     &COMM_IF_LT_12C.   scf_add_elem (l_plan, 'a', case when l_adaptive_inactive.exists(s.id) then '-' else ' ' end );
     &COMM_IF_LT_12C. end if;
     scf_add_elem (l_plan, 'Id' , s.id       , p_is_auxil => 'Y', p_self_is_id  => 'Y');

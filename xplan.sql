@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.12 27-January-2023"
+define XPLAN_VERSION="2.13 03-February-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -487,9 +487,9 @@ begin
                   p_child_number    => stmt.child_number, p_executions => stmt.executions,
                   p_first_load_time => to_date (stmt.first_load_time, 'yyyy-mm-dd/hh24:mi:ss'),
                   p_last_load_time  => to_date (stmt.last_load_time, 'yyyy-mm-dd/hh24:mi:ss')
-                  &COMM_IF_LT_10GR2., p_last_active_time             => stmt.last_active_time
-                  &COMM_IF_LT_11G.  , p_sql_plan_baseline            => stmt.sql_plan_baseline
-                  &COMM_IF_LT_12C.  , p_is_is_resolved_adaptive_plan => stmt.is_resolved_adaptive_plan
+                  &COMM_IF_LT_10GR2., p_last_active_time          => stmt.last_active_time
+                  &COMM_IF_LT_11G.  , p_sql_plan_baseline         => stmt.sql_plan_baseline
+                  &COMM_IF_LT_12C.  , p_is_resolved_adaptive_plan => stmt.is_resolved_adaptive_plan
                  );
     else -- if :OPT_SPOOL_FILES = ... ("by_hash" and "by_sql_id" branches)
       &COMM_IF_LT_10G. if :OPT_SPOOL_FILES = 'by_hash' then

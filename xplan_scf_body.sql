@@ -334,9 +334,12 @@ procedure scf_print_output (
   p_note                varchar2 default null)
 is
   l_line varchar2(2000 char);
+  l_color_on   boolean := false;
+  l_color_left varchar2(20 char) := '';
+  l_color_rite varchar2(20 char) := '';
 begin
   scf_prepare_output (p_state);
-  
+
   if p_state.numcols_not_empty = 0 then
     print (p_no_info_msg);
     return;
@@ -346,38 +349,51 @@ begin
     print (p_no_not_aux_info_msg);
     return;
   end if;
+
+  -- init color printing
+  if :OPT_COLORS = 'Y' and p_state.row_colors.count > 0 then 
+    l_color_on := true;
+  end if;
+
+  if l_color_on then 
+    l_color_left := chr(27)||'[38;5;15m';
+    l_color_rite := chr(27)||'[0m';
+  end if;
   
   -- print top separator
-  l_line := '-';
+  l_line := l_color_left ||  '-';
   for c in 0 .. p_state.cols.count-1 loop
     if p_state.cols(c).sep_top is not null then
       l_line := l_line || p_state.cols(c).sep_top || '-';
     end if;
   end loop;
+  l_line := l_line || l_color_rite;
   print (l_line);
   
   -- print colnames
-  l_line := '|';
+  l_line := l_color_left || '|';
   for c in 0 .. p_state.cols.count-1 loop
     if p_state.cols(c).colname is not null then
       l_line := l_line || p_state.cols(c).colname || '|';
     end if;
   end loop;
+  l_line := l_line || l_color_rite;
   print (l_line);
   
   -- print middle separator
-  l_line := '-';
+  l_line := l_color_left || '-';
   for c in 0 .. p_state.cols.count-1 loop
     if p_state.cols(c).sep_mid is not null then
       l_line := l_line || p_state.cols(c).sep_mid || '-';
     end if;
   end loop;
+  l_line := l_line || l_color_rite;
   print (l_line);
   
   -- print rows
   for r in 0 .. p_state.cols(0).rows_v.count-1 loop
     l_line := '';
-    if :OPT_COLORS = 'Y' and p_state.row_colors.count > 0 then 
+    if l_color_on then 
       l_line := l_line || chr(27)||'[38;5;'||to_char( p_state.row_colors(r), 'fm00') ||'m';
     end if;
     l_line := l_line || '|';
@@ -386,19 +402,20 @@ begin
         l_line := l_line || p_state.cols(c).rows_v(r) || '|';
       end if;
     end loop;
-    if :OPT_COLORS = 'Y' and p_state.row_colors.count > 0 then  
+    if l_color_on then  
       l_line := l_line || chr(27)||'[0m';
     end if;
     print (l_line);
   end loop;
   
   -- print bottom separator
-  l_line := '-';
+  l_line :=  l_color_left || '-';
   for c in 0 .. p_state.cols.count-1 loop
     if p_state.cols(c).sep_bot is not null then
       l_line := l_line || p_state.cols(c).sep_bot || '-';
     end if;
   end loop;
+  l_line := l_line || l_color_rite;
   print (l_line);
   
   if trim(p_note) is not null then

@@ -23,7 +23,7 @@
 -- If <sql like> is "last" => display last executed cursor by current session (10g+ only)
 --   (same as dbms_xplan.display_cursor with sql_id and cursor_child_no set to null) 
 --
--- Options: plan_stats : raw|per_exec|last (default last)
+-- Options: plan_stats : raw|per_exec|last (default raw)
 --                       How to print cumulative gv$sql_plan_statistics (e.g. cr_buffer_gets, elapsed_time) 
 --                       raw      : prints the raw value 
 --                       per_exec : prints the raw value / gv$sql.executions
@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.13 03-February-2023"
+define XPLAN_VERSION="2.14 07-February-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 

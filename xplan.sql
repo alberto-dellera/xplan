@@ -99,10 +99,10 @@
 --                       If not specified, it defaults to "by_sql_id" if sql_id is set, to "by_hash" if hash is set,
 --                       otherwise to "single".
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.14 07-February-2023"
+define XPLAN_VERSION="2.15 08-February-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -313,7 +313,6 @@ begin
       m_line := m_line || ' inst_id='|| stmt.inst_id;
       if stmt.module is not null then m_line := m_line || ' module=' || stmt.module; end if;
       if stmt.action is not null then m_line := m_line || ' action=' || stmt.action; end if;
-      &COMM_IF_LT_10G. if stmt.sql_profile is not null then m_line := m_line ||' sql_profile=' || stmt.sql_profile; end if;
       &COMM_IF_LT_10G. if stmt.program_id <> 0 then
       &COMM_IF_LT_10G.   m_line := m_line || ' program="' || get_cache_program_info (stmt.program_id) || '" line='||stmt.program_line#;
       &COMM_IF_LT_10G. end if;
@@ -479,7 +478,14 @@ begin
       &COMM_IF_LT_10G.   end if;
       &COMM_IF_LT_10G.   dbms_sql.close_cursor( l_theCursor );
       &COMM_IF_LT_10G. end;
-     
+
+      -- sql profile 
+      &COMM_IF_LT_10G. if stmt.sql_profile is not null then 
+      &COMM_IF_LT_10G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_10G.   print( '|| --> SQL PROFILE FOUND: ' || stmt.sql_profile || ' <-- @sql_profile ' || stmt.sql_profile || '    || ' ); 
+      &COMM_IF_LT_10G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_10G. end if;
+
       -- statement plan
       print_plan (p_inst_id         => :OPT_INST_ID, 
                   p_address         => stmt.address, p_child_address => stmt.child_address,

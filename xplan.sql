@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.15 08-February-2023"
+define XPLAN_VERSION="2.16 10-February-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -352,9 +352,11 @@ begin
       &COMM_IF_LT_11GR2. mcf_add_line ('io_cell_uncompressed_bytes'    , stmt.io_cell_uncompressed_bytes); 
       &COMM_IF_LT_11GR2. mcf_add_line ('io_cell_offload_returned_bytes', stmt.io_cell_offload_returned_bytes);
 
-      &COMM_IF_LT_12C mcf_add_line ('im_scans', stmt.im_scans);
-      &COMM_IF_LT_12C mcf_add_line ('im_scan_bytes_uncompressed', stmt.im_scan_bytes_uncompressed);
-      &COMM_IF_LT_12C mcf_add_line ('im_scan_bytes_inmemory', stmt.im_scan_bytes_inmemory);
+      &COMM_IF_LT_12C. mcf_add_line ('im_scans', stmt.im_scans);
+      &COMM_IF_LT_12C. mcf_add_line ('im_scan_bytes_uncompressed', stmt.im_scan_bytes_uncompressed);
+      &COMM_IF_LT_12C. mcf_add_line ('im_scan_bytes_inmemory', stmt.im_scan_bytes_inmemory);
+
+      &COMM_IF_LT_11GR2. mcf_add_line ('user io wait / ph read req (usec)', stmt.user_io_wait_time / nullif(stmt.physical_read_requests,0), to_number(null));
       
       mcf_prepare_output (p_num_columns => 3);
       loop

@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.16 10-February-2023"
+define XPLAN_VERSION="2.17 15-March-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -480,6 +480,13 @@ begin
       &COMM_IF_LT_10G.   end if;
       &COMM_IF_LT_10G.   dbms_sql.close_cursor( l_theCursor );
       &COMM_IF_LT_10G. end;
+
+      -- outline 
+      &COMM_IF_LT_10G. if stmt.outline_category is not null then 
+      &COMM_IF_LT_10G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_10G.   print( '|| --> OUTLINE FOUND: ' || stmt.outline_category ); 
+      &COMM_IF_LT_10G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_10G. end if;
 
       -- sql profile 
       &COMM_IF_LT_10G. if stmt.sql_profile is not null then 

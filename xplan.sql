@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.17 15-March-2023"
+define XPLAN_VERSION="2.18 15-March-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -484,7 +484,7 @@ begin
       -- outline 
       &COMM_IF_LT_10G. if stmt.outline_category is not null then 
       &COMM_IF_LT_10G.   print( '==========================================================================================================' );
-      &COMM_IF_LT_10G.   print( '|| --> OUTLINE FOUND: ' || stmt.outline_category ); 
+      &COMM_IF_LT_10G.   print( '|| --> OUTLINE FOUND: ' || stmt.outline_category || ' <-- please write a script similar to @sql_profile... '||'  || ' );  
       &COMM_IF_LT_10G.   print( '==========================================================================================================' );
       &COMM_IF_LT_10G. end if;
 
@@ -494,6 +494,20 @@ begin
       &COMM_IF_LT_10G.   print( '|| --> SQL PROFILE FOUND: ' || stmt.sql_profile || ' <-- @sql_profile ' || stmt.sql_profile || '    || ' ); 
       &COMM_IF_LT_10G.   print( '==========================================================================================================' );
       &COMM_IF_LT_10G. end if;
+
+      -- sql baseline 
+      &COMM_IF_LT_11G. if stmt.sql_plan_baseline is not null then 
+      &COMM_IF_LT_11G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_11G.   print( '|| --> SQL PLAN BASELINE FOUND: ' || stmt.sql_plan_baseline || ' <-- please write a script similar to @sql_profile... '||'  || ' ); 
+      &COMM_IF_LT_11G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_11G. end if;
+
+      -- sql patch 
+      &COMM_IF_LT_11G. if stmt.sql_patch is not null then 
+      &COMM_IF_LT_11G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_11G.   print( '|| --> SQL PATCH FOUND: ' || stmt.sql_patch || ' <-- please write a script similar to @sql_profile... '||'  || ' ); 
+      &COMM_IF_LT_11G.   print( '==========================================================================================================' );
+      &COMM_IF_LT_11G. end if;
 
       -- statement plan
       print_plan (p_inst_id         => :OPT_INST_ID, 

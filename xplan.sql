@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.18 15-March-2023"
+define XPLAN_VERSION="2.19 04-April-2023"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -290,6 +290,7 @@ begin
       &COMM_IF_LT_10G. if stmt.force_matching_signature is not null then m_line := m_line || 'force_matching_signature=' || stmt.force_matching_signature || ' '; end if;
       if stmt.hash_value is not null then m_line := m_line || 'hash=' || stmt.hash_value || ' '; end if;
       if stmt.plan_hash_value is not null then m_line := m_line || 'plan_hash=' || stmt.plan_hash_value || ' '; end if;
+      &COMM_IF_LT_12C. if stmt.full_plan_hash_value is not null then m_line := m_line || 'full_plan_hash=' || stmt.full_plan_hash_value || ' '; end if;
       print (m_line);
       
       m_line := '';

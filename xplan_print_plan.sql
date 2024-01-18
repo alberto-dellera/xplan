@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2021 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2024 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
 procedure extract_tag_value( p_xml clob, p_tag_name varchar2, p_tag_text out varchar2) 
@@ -371,7 +371,6 @@ procedure print_plan (
   p_first_load_time           date,
   p_last_load_time            date,
   p_last_active_time          date default null, -- null if not 10gR2+
-  p_sql_plan_baseline         varchar2 default null,  -- null if not 11g+
   p_is_resolved_adaptive_plan varchar2 default null -- null if not 12c+
 )
 is
@@ -505,7 +504,6 @@ begin
     &COMM_IF_LT_10GR2. print_peeked_binds (s.other_xml); 
     &COMM_IF_LT_10GR2. print_notes (s.other_xml); 
     &COMM_IF_LT_12C.   if p_is_resolved_adaptive_plan = 'Y' then extract_adaptive_inactive( s.other_xml, l_adaptive_inactive ); end if;
-    &COMM_IF_LT_10G.   if p_sql_plan_baseline is not null then print('sql plan baseline : '||p_sql_plan_baseline); end if;
     &COMM_IF_LT_10G. end if;
     
     l_base_object_id_char := to_char(get_cache_base_table_object_id (s.object#));

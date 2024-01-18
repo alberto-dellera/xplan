@@ -99,11 +99,11 @@
 --                       If not specified, it defaults to "by_sql_id" if sql_id is set, to "by_hash" if hash is set,
 --                       otherwise to "single".
 -- Author:      Alberto Dell'Era
--- Copyright:   (c) 2008-2023 Alberto Dell'Era http://www.adellera.it
+-- Copyright:   (c) 2008-2024 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.19 04-April-2023"
-define XPLAN_COPYRIGHT="(C) Copyright 2008-2023 Alberto Dell''Era, www.adellera.it"
+define XPLAN_VERSION="2.20 18-January-2024"
+define XPLAN_COPYRIGHT="(C) Copyright 2008-2024 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
 set echo off verify off feedback off termout off timing off
@@ -407,20 +407,21 @@ begin
       &COMM_IF_LT_11G.   -- from https://hourim.files.wordpress.com/2015/11/all-on-adaptive-and-extended-cursor-sharing1.pdf
       &COMM_IF_LT_11G.   -- one rule for becoming bind_aware is bkt[0] == bkt[1] or bkt[1] == bkt[2], i.e. adjacent buckets have the same count of executions
       &COMM_IF_LT_11G.   -- another seems to be that bkt[2] is about 3-4 times bkt[0]
-      &COMM_IF_LT_11G.   for x in (select /*+ xplan_exec_marker */ range_id, rtrim(predicate,chr(0)) as predicate, rtrim(low,chr(0)) as low, rtrim(high,chr(0)) as high 
+      &COMM_IF_LT_11G.   for x in (select /*+ xplan_exec_marker */ range_id, rtrim(predicate,chr(0)) as predicate, rtrim(low,chr(0)) as low, rtrim(high,chr(0)) as high, 
+      &COMM_IF_LT_11G.                    max(length(rtrim(predicate,chr(0)))) over() as predicate_max_len
       &COMM_IF_LT_11G.               from sys.gv_$sql_cs_selectivity
       &COMM_IF_LT_11G.              where inst_id      = :OPT_INST_ID 
       &COMM_IF_LT_11G.                and address      = stmt.address
       &COMM_IF_LT_11G.                and hash_value   = stmt.hash_value 
       &COMM_IF_LT_11G.                and sql_id       = stmt.sql_id 
       &COMM_IF_LT_11G.                and child_number = stmt.child_number
-      &COMM_IF_LT_11G.              order by rtrim(predicate,chr(0)), low, high )
+      &COMM_IF_LT_11G.              order by range_id, rtrim(predicate,chr(0)), low, high )
       &COMM_IF_LT_11G.   loop
-      &COMM_IF_LT_11G.     print('| acs bind-aware selectivity: '||x.predicate||' '
+      &COMM_IF_LT_11G.     print('| acs bind-aware selectivity: '
+      &COMM_IF_LT_11G.            ||'[range id '||x.range_id||'] "'||lpad(x.predicate,x.predicate_max_len)||'" '
       &COMM_IF_LT_11G.            ||case when x.low = 0 then '(exactly zero)' else to_char(x.low,'tm9') end
       &COMM_IF_LT_11G.            ||' <-> '
-      &COMM_IF_LT_11G.            ||case when x.high = 0 then '(exactly zero)' else to_char(x.high,'tm9') end
-      &COMM_IF_LT_11G.            ||' [range id '||x.range_id||']');
+      &COMM_IF_LT_11G.            ||case when x.high = 0 then '(exactly zero)' else to_char(x.high,'tm9') end);
       &COMM_IF_LT_11G.   end loop;
       &COMM_IF_LT_11G. elsif stmt.is_bind_sensitive = 'Y' then -- do not print v$sql_cs_histogram if bind-aware since they are not used anymore
       &COMM_IF_LT_11G.   -- from https://antognini.ch/2019/04/vsql_cs_histograms-what-are-the-buckets-thresholds/
@@ -518,7 +519,6 @@ begin
                   p_first_load_time => to_date (stmt.first_load_time, 'yyyy-mm-dd/hh24:mi:ss'),
                   p_last_load_time  => to_date (stmt.last_load_time, 'yyyy-mm-dd/hh24:mi:ss')
                   &COMM_IF_LT_10GR2., p_last_active_time          => stmt.last_active_time
-                  &COMM_IF_LT_11G.  , p_sql_plan_baseline         => stmt.sql_plan_baseline
                   &COMM_IF_LT_12C.  , p_is_resolved_adaptive_plan => stmt.is_resolved_adaptive_plan
                  );
     else -- if :OPT_SPOOL_FILES = ... ("by_hash" and "by_sql_id" branches)

@@ -102,7 +102,7 @@
 -- Copyright:   (c) 2008-2024 Alberto Dell'Era http://www.adellera.it
 --------------------------------------------------------------------------------
 
-define XPLAN_VERSION="2.20 18-January-2024"
+define XPLAN_VERSION="2.21 18-January-2024"
 define XPLAN_COPYRIGHT="(C) Copyright 2008-2024 Alberto Dell''Era, www.adellera.it"
 
 set null  "" trimspool on define on escape off pages 50000 tab off arraysize 100 
@@ -500,7 +500,7 @@ begin
       -- sql baseline 
       &COMM_IF_LT_11G. if stmt.sql_plan_baseline is not null then 
       &COMM_IF_LT_11G.   print( '==========================================================================================================' );
-      &COMM_IF_LT_11G.   print( '|| --> SQL PLAN BASELINE FOUND: ' || stmt.sql_plan_baseline || ' <-- please write a script similar to @sql_profile... '||'  || ' ); 
+      &COMM_IF_LT_11G.   print( '|| --> SQL PLAN BASELINE FOUND: @spm_baselines ' || stmt.sql_plan_baseline || '                           || ' ); 
       &COMM_IF_LT_11G.   print( '==========================================================================================================' );
       &COMM_IF_LT_11G. end if;
 
